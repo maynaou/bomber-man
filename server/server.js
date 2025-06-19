@@ -1,80 +1,41 @@
-const http = require('http');
-const WebSocket = require('ws');
-const fs = require('fs');
-const path = require('path');
+import { Room } from "./room.js"
+import http from "http"
+import { WebSocketServer } from "ws"
+// const wsSocket = require("ws")
 
-// Créer un serveur HTTP
 const server = http.createServer((req, res) => {
-    // Servir le fichier HTML
-    if (req.url === '/') {
-        fs.readFile(path.join(__dirname, '../client/index.html'), (err, data) => {
-            if (err) {
-                res.writeHead(500);
-                return res.end('Erreur du serveur');
-            }
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end(data);
-        });
-    } else if (req.url === '/style.css') {
-        fs.readFile(path.join(__dirname, '../client/style.css'), (err, data) => {
-            if (err) {
-                res.writeHead(500);
-                return res.end('Erreur du serveur');
-            }
-            res.writeHead(200, { 'Content-Type': 'text/css' });
-            res.end(data);
-        });
-    }  else if (req.url.startsWith('/js/')) {
-        const filePath = path.join(__dirname, '../client', req.url);
-        fs.readFile(filePath, (err, data) => {
-            if (err) {
-                res.writeHead(500);
-                return res.end('Erreur du serveur');
-            }
-            res.writeHead(200, { 'Content-Type': 'application/javascript' });
-            res.end(data);
-        });
-    }  else {
-        res.writeHead(404);
-        res.end('Page non trouvée');
-    }
-});
 
-// Créer un serveur WebSocket en utilisant le même serveur HTTP
-const wss = new WebSocket.Server({ server });
-const players = [];
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
 
-wss.on('connection', (socket) => {
-    console.log('Un joueur s\'est connecté');
+})
 
-    socket.on('message', (message) => {
-        const data = JSON.parse(message);
-        if (data.type === 'join') {
-            players.push(data.username);
-            broadcast({ type: 'lobby', players });
+const wss = new WebSocketServer({server})
+const room = new Room()
+const playerConnections = new Map();
+
+wss.on('connection', (ws) => {
+    ws.on('message', (message) => {
+        try {
+            const data = JSON.parse(message);
+
+            switch (data.type) {
+                case 'join':
+                    if (room.players.size < 4) {
+                        // console.log(data);
+                       const playerId =  room.addPlayer(data.username, ws)
+                       playerConnections.set(ws,playerId)
+                    }
+                    break;
+            }
+        } catch (error) {
+            console.error('Erreur parsing message:', error);
         }
     });
 
-    // Gérer la déconnexion
-    socket.on('close', () => {
-        const index = players.indexOf(socket.username);
-        if (index !== -1) {
-            players.splice(index, 1);
-            broadcast({ type: 'lobby', players });
-        }
+    ws.on('close', () => {
     });
 });
 
-// Fonction pour envoyer un message à tous les clients
-function broadcast(message) {
-    wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(message));
-        }
-    });
-}
-
-// Démarrer le serveur sur le port 8080
-server.listen(8080, () => {
-    console.log('Serveur HTTP et WebSocket démarré sur http://localhost:8080');
-});
+server.listen(8070, () => {
+    console.log('Server running on http://localhost:8080')
+})

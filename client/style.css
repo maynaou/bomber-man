@@ -1,22 +1,75 @@
 body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0;
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #1a1a1a;
+        color: white;
 }
 
-#app {
-    text-align: center;
+.container {
+        background: #2d2d2d;
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
 }
 
-input {
-    padding: 10px;
-    margin-bottom: 10px;
+input[type="text"] {
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        margin: 10px;
+        width: 200px;
 }
 
 button {
-    padding: 10px 15px;
-    cursor: pointer;
+        padding: 10px 20px;
+        font-size: 16px;
+        background: #ff6b35;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px;
+}
+
+button:hover {
+        background: #e55a2b;
+}
+
+.game-container {
+    position: absolute;
+    display: flex; /* Use grid layout for the map */
+    background-image: url('floor.png'); /* Background image for the map */
+    border: 3px solid #666; /* Border around the map */
+}
+
+.cell {
+    width: 40px; /* Width of each cell */
+    height: 40px; /* Height of each cell */
+}
+
+.wall {
+    background-image: url('wall.png'); /* Image for wall cells */
+    background-size: cover; /* Ensure the image covers the cell */
+}
+
+.block {
+    background-image: url('destructible_wall.png'); /* Image for destructible blocks */
+    background-size: cover; /* Ensure the image covers the cell */
+}
+
+.player {
+    background-image: url('wall-front.png'); /* Image for player cells */
+    background-size: contain; /* Ensure the image fits within the cell */
+    background-repeat: no-repeat; /* Prevent repeating the image */
+    width: 40px; /* Match cell size */
+    height: 40px; /* Match cell size */
+    position: relative; /* Positioning context for z-index */
+    z-index: 1000; /* Ensure players appear above other elements */
+}
+
+.empty {
+    background-color: transparent; /* Background for empty cells */
 }

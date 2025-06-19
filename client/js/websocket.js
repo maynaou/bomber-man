@@ -1,10 +1,13 @@
+import { App } from "./app.js"
+import { renderAppFn } from "../framework/state.js";
 let socket;
 
-function connectToWebSocket(username) {
-    socket = new WebSocket('ws://localhost:8080');
+export function connectToWebSocket(username) {
+
+    socket = new WebSocket('ws://localhost:8070');
 
     socket.onopen = () => {
-        socket.send(JSON.stringify({ type: 'join', username }));
+        socket.send(JSON.stringify({ type: 'join', username: username }));
     };
 
     socket.onmessage = (event) => {
@@ -14,10 +17,30 @@ function connectToWebSocket(username) {
 }
 
 function handleMessage(message) {
+    // showLobby(message.players);
+     const mount = document.getElementById("app");  
     switch (message.type) {
         case 'lobby':
-            showLobby(message.players);
+             renderAppFn(()=>App("lobby", message.players,message.seconds), mount);
             break;
-        // Gérer d'autres types de messages si nécessaire
+        case 'waiting_start':
+             renderAppFn(()=>App("waiting_start",message.players, message.seconds), mount);
+            break;
+        case 'countdown_start':
+             renderAppFn(() => App("countdown_start", message.players, message.seconds), mount);
+      break;
+      
+      case 'game_start':
+      renderAppFn(() => App("game_start", message.players, message), mount);
+      break;
+      
+      case 'error':
+      console.error("Server error:", message.message);
+      alert(`Erreur: ${message.message}`);
+      break;
+      
+     default:
+      console.warn("Unknown message type:", message.type, "Full message:", message);
     }
 }
+
