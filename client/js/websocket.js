@@ -16,6 +16,24 @@ export function connectToWebSocket(username) {
     };
 }
 
+export function sendPlayerMove(direction, playerId) {
+    
+    const moveData = {
+        type: 'move',
+        playerId: playerId,
+        direction: direction,
+        timestamp: Date.now()
+    };
+
+    // Envoyer via WebSocket
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(moveData));
+        console.log('Mouvement envoyé:', moveData);
+    } else {
+        console.error('WebSocket non connecté. Impossible d\'envoyer le mouvement.');
+    }
+}
+
 function handleMessage(message) {
     // showLobby(message.players);
      const mount = document.getElementById("app");  

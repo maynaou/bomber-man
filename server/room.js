@@ -104,7 +104,10 @@ export class Room {
    
    startGame() {
        this.gameState = 'playing';
-       this.gameMap = new GenerateMapGame(13,15,this.players.size);
+       const playerId = Array.from(this.players.keys())
+       console.log("playerId : ",playerId);
+       
+       this.gameMap = new GenerateMapGame(13,15,playerId);
        const mapData = this.gameMap.generateMapData();
           
        this.broadcast({
@@ -120,6 +123,72 @@ export class Room {
             playerPositions: this.gameMap.getPlayerPositions()
         }
      });
+   }
+
+    handlePlayerMove(playerId, direction) {
+       if (this.gameState !== 'playing') {
+           return false;
+       }
+
+       const player = this.players.get(playerId);
+
+       console.log("player : -------------- : ",player);
+       
+       if (!player) {
+           return false;
+       }
+
+       const currentPos = this.gameMap.getPlayerPosition(playerId);
+       if (!currentPos) {
+           return false;
+       }
+
+       let newRow = currentPos.r;
+       let newCol = currentPos.c;
+
+       // Calculate new position based on direction
+       switch(direction) {
+           case 'up':
+               newRow = currentPos.r - 1;
+               break;
+           case 'down':
+               newRow = currentPos.r + 1;
+               break;
+           case 'left':
+               newCol = currentPos.c - 1;
+               break;
+           case 'right':
+               newCol = currentPos.c + 1;
+               break;
+           default:
+               return false;
+       }
+
+       // Check if move is valid
+       if (this.gameMap.isValidMove(newRow, newCol)) {
+           // Update player position
+           this.gameMap.updatePlayerPosition(playerId, newRow, newCol);
+            this.gameMap = new GenerateMapGame(newRow,newCol,playerId);
+       const mapData = this.gameMap.generateMapData();
+           // Broadcast the move to all players
+              this.broadcast({
+        type: 'game_start',
+        players: Array.from(this.players.values()).map(p => ({
+            id: p.id,
+            username: p.username,
+        })),
+        map: {
+            data: mapData,
+            rows: this.gameMap.rows,
+            cols: this.gameMap.cols,
+            playerPositions: this.gameMap.getPlayerPositions()
+        }
+     });
+           
+           return true;
+       }
+       
+       return false;
    }
 
    clearWaitingTimer() {
