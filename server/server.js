@@ -25,22 +25,13 @@ wss.on('connection', (ws) => {
                        const playerId =  room.addPlayer(data.username, ws)
                        playerConnections.set(ws,playerId)
                     }
-                  break;
-                case 'move':
-                     const playerId = playerConnections.get(ws);
-                     console.log("playerId : ",playerId);
-                        if (playerId && data.direction) {
-                        const moved = room.handlePlayerMove(playerId, data.direction);
-                        if (!moved) {
-                            // Send back invalid move message if needed
-                            ws.send(JSON.stringify({
-                                type: 'move_invalid',
-                                message: 'Invalid move'
-                            }));
-                        }
-                    }
 
                     break;
+                 case 'move':
+                    console.log("data : ", data.direction);
+                    
+                room.handlePlayerMove(data); // direction = 'up', 'down' etc.
+                  break
             }
         } catch (error) {
             console.error('Erreur parsing message:', error);

@@ -60,14 +60,36 @@ button:hover {
     background-size: cover; /* Ensure the image covers the cell */
 }
 
+.bombs {
+  background-image: url('bomb.png'); /* ou une autre image */
+  background-size: cover;
+  background-position: center;
+}
+
 .player {
-    background-image: url('wall-front.png'); /* Image for player cells */
-    background-size: contain; /* Ensure the image fits within the cell */
-    background-repeat: no-repeat; /* Prevent repeating the image */
-    width: 40px; /* Match cell size */
-    height: 40px; /* Match cell size */
-    position: relative; /* Positioning context for z-index */
-    z-index: 1000; /* Ensure players appear above other elements */
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 40px;
+    height: 40px;
+    position: relative;
+    z-index: 1000;
+}
+
+.player.front {
+    background-image: url('wall-front.png');
+}
+
+
+.player.back {
+    background-image: url('wall-back.png');
+}
+
+.player.left {
+    background-image: url('wall-left.png');
+}
+
+.player.right {
+    background-image: url('wall-right.png');
 }
 
 .empty {

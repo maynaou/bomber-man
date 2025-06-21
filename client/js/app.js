@@ -3,77 +3,54 @@
 import { useState } from "../framework/state.js";
 import { h } from "../framework/dom.js";
 import { renderAppFn } from "../framework/state.js";
-import { connectToWebSocket,sendPlayerMove } from "./websocket.js"
+import { connectToWebSocket,handlemoveplayer } from "./websocket.js"
 export function App(gameState, players = [], seconds = {}) {
-  console.log(seconds);
+  
 
   const [username, setUsername] = useState("");
-   const [currentPlayerId, setCurrentPlayerId] = useState(null);
   function handleJoinGame(username) {
     if (username.trim() !== "") {
-      setCurrentPlayerId(username.trim())
       connectToWebSocket(username.trim());
     } else {
-      console.log("Le nom d'utilisateur est vide");
       alert("Veuillez entrer un pseudo valide!");
-    }
-  }
-
-  function handleKeyDown(event) {
-    if (!currentPlayerId) return;
-    
-    const keyMappings = {
-      'ArrowUp': 'up',
-      'ArrowDown': 'down', 
-      'ArrowLeft': 'left',
-      'ArrowRight': 'right',
-      'KeyW': 'up',
-      'KeyS': 'down',
-      'KeyA': 'left',
-      'KeyD': 'right',
-      'Space': 'bomb' // Pour placer une bombe
-    };
-    
-    const direction = keyMappings[event.code];
-    console.log("hhhhhhhhhhhhhh",direction);
-    if (direction) {
-      
-      
-      event.preventDefault();
-      sendPlayerMove(direction, currentPlayerId);
     }
   }
 
   function createMapFromData(mapData, rows, cols) {
     const mapCells = [];
-       console.log(mapData);
-       
+
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         let cellType = mapData[r][c];
-        let cellClass = 'cell';
-        let playerId = null
-         console.log("cellType");
 
-         if (cellType.startsWith('player')) {
-             playerId = cellType;
-             cellType = 'player'
-         }
-         
-        // const isPlayerPosition = playerPositions.some(pos => pos.row === r && pos.col === c);
+        
+        let direction = ""
+        let cellClass = 'cell';
+
+        console.log("celltype : ",cellType);
+        
         // console.log(isPlayerPosition);
+          if (cellType.startsWith('player')) {
+              direction = cellType.split(" ")[1]
+              console.log(direction);
+              
+              cellType = 'player'
+          }
     
           switch (cellType) {
             case 'wall':
               cellClass += ' wall';
               break;
+            case 'bombs': 
+            cellClass += ' bombs'
+            // cellClass += ' player ' + direction;
+
+                 break
             case 'block':
               cellClass += ' block';
               break;
-              case 'player':
-                console.log("cellType");
-                
-                   cellClass += ` player`;
+           case  'player':            
+              cellClass += ' player ' + direction;
               break;
             case 'empty':
             default:
@@ -81,20 +58,28 @@ export function App(gameState, players = [], seconds = {}) {
               break;
           }
 
-            const cellProps = {
-                class: cellClass,
-                'data-row': r,
-                'data-col': c
-            };
-            
-            // Ajouter l'ID seulement pour les joueurs
-            if (playerId) {
-                cellProps.id = playerId;
+          console.log("cell state ==>", cellClass);
+
+        const cellprops =  {
+            class: cellClass,
+            'data-row': r,
+            'data-col': c
+          }
+
+          if (cellClass = 'cell player') {
+
+            // cellprops["data-row"] = `${r*40}px`
+            // cellprops["data-col"] = `${c*40}px`
+
+            cellprops.onkeydown = (e) => {
+              handlemoveplayer(e,username)
             }
-            
-            mapCells.push(
-                h("div", cellProps)
-            );
+           cellprops.tabindex = 0;
+
+          }
+
+        mapCells.push(h("div" ,cellprops))
+        
       }
     }
 
@@ -256,22 +241,8 @@ export function App(gameState, players = [], seconds = {}) {
     const cols = seconds.map?.cols || 15;
     const playerPositions = seconds.map?.playerPositions || [];
 
-    return h("div", { 
-      class: "game-container",
-      tabindex: "0", // Pour permettre le focus et capturer les événements clavier
-      style: "outline: none;", // Enlever la bordure de focus
-      onKeyDown: handleKeyDown // Gestionnaire d'événement directement sur l'élément
-    }, [
+    return h("div", { class: "game-container" }, [
       mapData ? createMapFromData(mapData, rows, cols) : h("div", {}, "Chargement de la carte..."),
-      
-      // Instructions de contrôle
-      h("div", { class: "player-info", style: "margin-top: 10px; text-align: center;" }, [
-        h("p", { style: "font-weight: bold;" }, `Vous jouez en tant que: ${currentPlayerId}`),
-        h("div", { class: "controls-info" }, [
-          h("p", {}, "🎮 Utilisez les flèches ↑↓←→ ou WASD pour bouger"),
-          h("p", {}, "💣 Appuyez sur ESPACE pour placer une bombe")
-        ])
-      ])
     ]);
   }
 

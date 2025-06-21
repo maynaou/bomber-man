@@ -3,37 +3,40 @@ export class GenerateMapGame {
     constructor(rows, cols, playerIds) {
         this.rows = rows;
         this.cols = cols;
-        this.playerIds = playerIds;
-        // Positions des joueurs dans les coins
+        this.playerIds = playerIds; // Liste des IDs ex: ['player1', 'player2']
         this.playerPositions = this.generatePlayerPositions();
-
-        this.mapData = null 
+        this.mapData = this.generateMapData()
+        this.activeBombs = []
+        this.width = 40
+        this.height = 40
+        // this.data = null
     }
 
-          
-    generatePlayerPositions() {      
+    generatePlayerPositions() {
         const cornerPositions = [
             { r: 1, c: 1 },
             { r: 1, c: this.cols - 2 },
             { r: this.rows - 2, c: 1 },
             { r: this.rows - 2, c: this.cols - 2 },
         ];
-     return this.playerIds.map((id, index) => ({
+
+        return this.playerIds.map((id, index) => ({
             id,
             r: cornerPositions[index].r,
-            c: cornerPositions[index].c
+            c: cornerPositions[index].c,
+            direction: 'front'
         }));
     }
 
-
     // Méthode pour générer les données de la carte (sans DOM)
     generateMapData() {
-        this.mapData = []
+        const mapData = [];
+
         for (let r = 0; r < this.rows; r++) {
             const row = [];
             for (let c = 0; c < this.cols; c++) {
                 let cellType = 'empty';
-                const playerid = this.playerPositions.find(p => p.r === r && p.c === c)
+                const playerHere = this.playerPositions.find(p => p.r === r && p.c === c);
                 // Murs fixes sur les bords
                 if (r === 0 || r === this.rows - 1 || c === 0 || c === this.cols - 1) {
                     cellType = 'wall';
@@ -42,93 +45,132 @@ export class GenerateMapGame {
                 else if (r % 2 === 0 && c % 2 === 0) {
                     cellType = 'wall';
                 }
-                // Position des joueurs : on laisse vide (zone sûre)
-                else if (playerid) {
-                    console.log(playerid);
-                    
-                    cellType = 'player' + playerid.id;
-                    console.log(cellType);
-                    
-                }
-                // Zone sûre autour des joueurs (on évite de mettre des blocs destructibles)
-                else if (
+
+                else if (playerHere) {
+                    cellType = `player ${playerHere.direction}`;
+
+                } else if (
                     this.playerPositions.some(p =>
                         Math.abs(p.r - r) <= 1 && Math.abs(p.c - c) <= 1
                     )
                 ) {
                     cellType = 'empty';
-                }
-                // Sinon, placer un bloc destructible aléatoirement (50%)
-                else {
+                } else {
                     if (Math.random() < 0.5) {
                         cellType = 'block';
                     }
                 }
-                
                 row.push(cellType);
             }
-            this.mapData.push(row);
+
+            mapData.push(row);
         }
-        
-        return this.mapData;
+
+
+
+        return mapData;
     }
-getPlayerPositions() {
+    getPlayerPositions() {
         return this.playerPositions;
     }
 
-    // NEW METHOD: Get specific player position
-    getPlayerPosition(playerId) {
-        return this.playerPositions.find(p => p.id === playerId);
+    moveplayer(direction, playerid) {
+
+        const player = this.playerPositions.find(p => p.id === playerid)
+
+        const oldR = player.r;
+        const oldC = player.c;
+        let newR = oldR;
+        let newC = oldC;
+
+
+        switch (direction) {
+            case 'ArrowUp':
+                newR = player.r - 1
+                player.direction = 'back'
+                break;
+            case 'ArrowRight':
+                newC = player.c + 1
+                player.direction = 'right'
+                break;
+            case 'ArrowLeft':
+                newC = player.c - 1
+                player.direction = 'left'
+                break;
+            case 'ArrowDown':
+                newR = player.r + 1
+                player.direction = 'front'
+            case 'Space':
+                this.placeBombs(player.r, player.c)
+                break
+        }
+
+        // const hasBomb = this.activeBombs.some(bomb => bomb.r === player.r && bomb.c === player.c);
+        if (this.mapData[newR][newC] === 'empty') {
+            player.r = newR;
+            player.c = newC;
+
+            this.mapData[oldR][oldC] = 'empty';
+
+            // Set new position
+            this.mapData[newR][newC] = `player ${player.direction}`;
+        }
+        return this.mapData
     }
 
-    // NEW METHOD: Check if a move is valid
-    isValidMove(row, col) {
 
-        
-        
-        // Check bounds
-        if (row < 0 || row >= this.rows || col < 0 || col >= this.cols) {
-            return false;
-        }
+    placeBombs(r, c) {
 
-        // Check if cell is not a wall or block
-        const cellType = this.mapData[row][col];
-        if (cellType === 'wall' || cellType === 'block') {
-            return false;
-        }
-
-        // Check if another player is already at this position
-        const playerAtPosition = this.playerPositions.find(p => p.r === row && p.c === col);
-        if (playerAtPosition) {
-            return false;
-        }
-    console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-    
-        return true;
-    }
-
-    // NEW METHOD: Update player position
-    updatePlayerPosition(playerId, newRow, newCol) {
-
-        
-        
-        const playerIndex = this.playerPositions.findIndex(p => p.id === playerId);
-        console.log("------------------------------------------------------------------",playerIndex);
-        if (playerIndex !== -1) {
-            // Clear old position in map data
-            const oldPos = this.playerPositions[playerIndex];
-            this.mapData[oldPos.r][oldPos.c] = 'empty';
-            
-            // Update position
-            this.playerPositions[playerIndex] = {
-                id: playerId,
-                r: newRow,
-                c: newCol
+         const hasBomb = this.activeBombs.some(bomb => bomb.r === r && bomb.c === c);
+            if (this.mapData[r][c].includes('player') && !hasBomb) {
+            const bomb = {
+            r: r,
+            c: c,
+            timer: 500, 
+            placed: Date.now()
             };
-            
-            // Set new position in map data
-            this.mapData[newRow][newCol] = 'player' + playerId;
+
+            this.activeBombs.push(bomb);
+
         }
+
+        this.mapData[r][c] = 'bombs'
+
+        setTimeout(() => {
+            this.explodeBomb(r, c);
+        }, 2000);
+      
     }
 
- }
+    explodeBomb(r, c) {
+    // Supprimer la bombe de la liste
+    this.activeBombs = this.activeBombs.filter(b => !(b.r === r && b.c === c));
+
+    // Bombe elle-même
+    if (this.mapData[r][c] === 'bomb') {
+        this.mapData[r][c] = 'empty';
+    }
+
+    // Explosion dans 4 directions (haut, bas, gauche, droite)
+    const directions = [
+        { dr: -1, dc: 0 }, // haut
+        { dr: 1, dc: 0 },  // bas
+        { dr: 0, dc: -1 }, // gauche
+        { dr: 0, dc: 1 }   // droite
+    ];
+
+    for (const { dr, dc } of directions) {
+        const nr = r + dr;
+        const nc = c + dc;
+
+        if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+            const target = this.mapData[nr][nc];
+            if (target === 'block' || target === 'bomb') {
+                this.mapData[nr][nc] = 'empty'; // détruire le bloc ou bombe
+            }
+        }
+    }
+}
+
+
+}
