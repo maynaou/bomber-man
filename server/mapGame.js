@@ -70,9 +70,6 @@ export class GenerateMapGame {
 
         return mapData;
     }
-    getPlayerPositions() {
-        return this.playerPositions;
-    }
 
     moveplayer(direction, playerid) {
 
@@ -100,58 +97,63 @@ export class GenerateMapGame {
             case 'ArrowDown':
                 newR = player.r + 1
                 player.direction = 'front'
+                break;
             case 'Space':
                 this.placeBombs(player.r, player.c)
                 break
         }
 
-        // const hasBomb = this.activeBombs.some(bomb => bomb.r === player.r && bomb.c === player.c);
-        if (this.mapData[newR][newC] === 'empty') {
+        const targetCell = this.mapData[newR][newC];
+        
+        if (targetCell === 'empty') {
             player.r = newR;
             player.c = newC;
 
-            this.mapData[oldR][oldC] = 'empty';
-
-            // Set new position
+            const hasBombAtOldPos = this.activeBombs.some(bomb => bomb.r === oldR && bomb.c === oldC);
+            
+            if (hasBombAtOldPos) {
+                console.log("hasBombAtOldPos : ",hasBombAtOldPos);
+                this.mapData[oldR][oldC] = 'bombs';
+            } else {
+                this.mapData[oldR][oldC] = 'empty';
+            }
             this.mapData[newR][newC] = `player ${player.direction}`;
         }
+
         return this.mapData
     }
 
 
-    placeBombs(r, c) {
-
-         const hasBomb = this.activeBombs.some(bomb => bomb.r === r && bomb.c === c);
-            if (this.mapData[r][c].includes('player') && !hasBomb) {
-            const bomb = {
+   placeBombs(r, c) {
+    const hasBomb = this.activeBombs.some(bomb => bomb.r === r && bomb.c === c);
+        if (this.mapData[r][c].includes('player') && !hasBomb) {
+        const bomb = {
             r: r,
             c: c,
             timer: 500, 
             placed: Date.now()
-            };
+        };
 
-            this.activeBombs.push(bomb);
-
-        }
-
-        this.mapData[r][c] = 'bombs'
-
+        this.activeBombs.push(bomb);
+        
         setTimeout(() => {
             this.explodeBomb(r, c);
         }, 2000);
-      
     }
+}
 
-    explodeBomb(r, c) {
-    // Supprimer la bombe de la liste
+ explodeBomb(r, c) {
     this.activeBombs = this.activeBombs.filter(b => !(b.r === r && b.c === c));
 
-    // Bombe elle-même
-    if (this.mapData[r][c] === 'bomb') {
-        this.mapData[r][c] = 'empty';
+    if (this.mapData[r][c] === 'bombs') {
+        const playerHere = this.playerPositions.find(p => p.r === r && p.c === c);
+        if (playerHere) {
+            this.mapData[r][c] = `player ${playerHere.direction}`;
+        } else {
+            this.mapData[r][c] = 'empty';
+        }
     }
 
-    // Explosion dans 4 directions (haut, bas, gauche, droite)
     const directions = [
         { dr: -1, dc: 0 }, // haut
         { dr: 1, dc: 0 },  // bas
@@ -165,8 +167,10 @@ export class GenerateMapGame {
 
         if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
             const target = this.mapData[nr][nc];
-            if (target === 'block' || target === 'bomb') {
-                this.mapData[nr][nc] = 'empty'; // détruire le bloc ou bombe
+            if (target === 'block') {
+                this.mapData[nr][nc] = 'empty';
+            } else if (target === 'bombs') {
+                this.explodeBomb(nr, nc);
             }
         }
     }

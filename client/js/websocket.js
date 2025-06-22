@@ -22,9 +22,8 @@ export function handlemoveplayer(direction, username) {
     let directionValue = direction.key;
     if (direction.code) {
         directionValue = direction.code;
-    }
-    console.log("direction : ", directionValue);
-    socket.send(JSON.stringify({ type: 'move', direction: directionValue, username: username }));
+    }   
+     socket.send(JSON.stringify({ type: 'move', direction: directionValue, username: username }));
 
 
 }

@@ -16,83 +16,86 @@ export function App(gameState, players = [], seconds = {}) {
     }
   }
 
-  function createMapFromData(mapData, rows, cols) {
+ function createMapFromData(mapData, rows, cols, activeBombs = []) {
+
+  console.log();
+  
     const mapCells = [];
 
     for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        let cellType = mapData[r][c];
-
-        
-        let direction = ""
-        let cellClass = 'cell';
-
-        console.log("celltype : ",cellType);
-        
-        // console.log(isPlayerPosition);
-          if (cellType.startsWith('player')) {
-              direction = cellType.split(" ")[1]
-              console.log(direction);
-              
-              cellType = 'player'
-          }
-    
-          switch (cellType) {
-            case 'wall':
-              cellClass += ' wall';
-              break;
-            case 'bombs': 
-            cellClass += ' bombs'
-            // cellClass += ' player ' + direction;
-
-                 break
-            case 'block':
-              cellClass += ' block';
-              break;
-           case  'player':            
-              cellClass += ' player ' + direction;
-              break;
-            case 'empty':
-            default:
-              // Cellule vide, juste la classe de base
-              break;
-          }
-
-          console.log("cell state ==>", cellClass);
-
-        const cellprops =  {
-            class: cellClass,
-            'data-row': r,
-            'data-col': c
-          }
-
-          if (cellClass = 'cell player') {
-
-            // cellprops["data-row"] = `${r*40}px`
-            // cellprops["data-col"] = `${c*40}px`
-
-            cellprops.onkeydown = (e) => {
-              handlemoveplayer(e,username)
+        for (let c = 0; c < cols; c++) {
+            let cellType = mapData[r][c];
+            
+            let direction = ""
+            let cellClass = 'cell';
+            
+            // Vérifier s'il y a une bombe à cette position
+            const hasBomb = activeBombs.some(bomb => bomb.r === r && bomb.c === c);
+            
+            // Gérer les cellules avec joueurs
+            if (cellType.startsWith('player')) {
+                direction = cellType.split(" ")[1];
+                cellType = 'player';
             }
-           cellprops.tabindex = 0;
+    
+            switch (cellType) {
+                case 'wall':
+                    cellClass += ' wall';
+                    break;
+                case 'bombs': 
+                 console.log("HHHHHHHHHHHHHHHHHH",hasBomb);
+                    cellClass += ' bombs';
+                    break;
+                case 'block':
+                    cellClass += ' block';
+                    break;
+                case 'player':            
+                    cellClass += ' player ' + direction;
+                    // Si il y a aussi une bombe, ajouter la classe
+                    if (hasBomb) {
+                      console.log("HHHHHHHHHHHHHHHHHH");
+                      
+                        cellClass += ' has-bomb';
+                    }
+                    break;
+                case 'empty':
+                default:
+                    // Si c'est vide mais qu'il y a une bombe
+                    if (hasBomb) {
+                        cellClass += ' bombs';
+                    }
+                    break;
+            }
 
-          }
 
-        mapCells.push(h("div" ,cellprops))
-        
-      }
+            const cellprops = {
+                class: cellClass,
+                'data-row': r,
+                'data-col': c
+            };
+
+            // ✅ CORRECTION: utiliser includes() pour vérifier si c'est un joueur
+            if (cellClass = 'cell player') {
+                cellprops.onkeydown = (e) => {
+                    handlemoveplayer(e, username);
+                };
+                cellprops.tabindex = 0;
+            }
+
+            mapCells.push(h("div", cellprops));
+        }
     }
 
     return h("div", {
-      id: "map",
-      class: "game-map",
-      style: `
-      display: grid;
-      grid-template-columns: repeat(${cols}, 1fr);
-      grid-template-rows: repeat(${rows}, 1fr);
-    `
+        id: "map",
+        class: "game-map",
+        style: `
+            display: grid;
+            grid-template-columns: repeat(${cols}, 1fr);
+            grid-template-rows: repeat(${rows}, 1fr);
+        `
     }, mapCells);
-  }
+}
 
   if (gameState === 'login') {
     return h("div", { id: "nickname-form", class: "container" }, [
@@ -239,10 +242,10 @@ export function App(gameState, players = [], seconds = {}) {
     const mapData = seconds.map?.data;
     const rows = seconds.map?.rows || 13;
     const cols = seconds.map?.cols || 15;
-    const playerPositions = seconds.map?.playerPositions || [];
+    const activeBombs = seconds.map?.activeBombs || [];
 
     return h("div", { class: "game-container" }, [
-      mapData ? createMapFromData(mapData, rows, cols) : h("div", {}, "Chargement de la carte..."),
+      mapData ? createMapFromData(mapData, rows, cols,activeBombs) : h("div", {}, "Chargement de la carte..."),
     ]);
   }
 

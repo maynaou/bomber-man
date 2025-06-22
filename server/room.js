@@ -115,8 +115,7 @@ export class Room {
             map: {
                 data: mapData,
                 rows: this.gameMap.rows,
-                cols: this.gameMap.cols,
-                playerPositions: this.gameMap.getPlayerPositions()
+                cols: this.gameMap.cols
             }
         });
     }
@@ -149,7 +148,7 @@ export class Room {
                         data: mapData,
                         rows: this.gameMap.rows,
                         cols: this.gameMap.cols,
-                        playerPositions: this.gameMap.getPlayerPositions()
+                        activeBombs: this.gameMap.activeBombs
                     }
                 });
             }

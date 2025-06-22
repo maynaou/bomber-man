@@ -1,97 +1,128 @@
 body {
-        font-family: Arial, sans-serif;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-        background: #1a1a1a;
-        color: white;
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #1a1a1a;
+    color: white;
 }
 
 .container {
-        background: #2d2d2d;
-        border-radius: 10px;
-        padding: 30px;
-        text-align: center;
+    background: #2d2d2d;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
 }
 
 input[type="text"] {
-        padding: 10px;
-        font-size: 16px;
-        border: none;
-        border-radius: 5px;
-        margin: 10px;
-        width: 200px;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    margin: 10px;
+    width: 200px;
 }
 
 button {
-        padding: 10px 20px;
-        font-size: 16px;
-        background: #ff6b35;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
 }
 
 button:hover {
-        background: #e55a2b;
+    background: #e55a2b;
 }
 
 .game-container {
-    position: absolute;
-    display: flex; /* Use grid layout for the map */
-    background-image: url('floor.png'); /* Background image for the map */
-    border: 3px solid #666; /* Border around the map */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #1a1a1a;
 }
 
+/* ✅ CORRECTION: Map du jeu */
+.game-map {
+    display: grid;
+    gap: 0;
+    border: 3px solid #666;
+    background-image: url('floor.png');
+    background-size: 40px 40px;
+    /* Répéter l'image de sol */
+    background-repeat: repeat;
+}
+
+/* ✅ CORRECTION: Cellules de base */
 .cell {
-    width: 40px; /* Width of each cell */
-    height: 40px; /* Height of each cell */
-}
-
-.wall {
-    background-image: url('wall.png'); /* Image for wall cells */
-    background-size: cover; /* Ensure the image covers the cell */
-}
-
-.block {
-    background-image: url('destructible_wall.png'); /* Image for destructible blocks */
-    background-size: cover; /* Ensure the image covers the cell */
-}
-
-.bombs {
-  background-image: url('bomb.png'); /* ou une autre image */
-  background-size: cover;
-  background-position: center;
-}
-
-.player {
-    background-size: contain;
-    background-repeat: no-repeat;
     width: 40px;
     height: 40px;
     position: relative;
-    z-index: 1000;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-.player.front {
+/* ✅ CORRECTION: Styles pour les différents éléments */
+.cell.wall {
+    background-image: url('wall.png');
+}
+
+.cell.block {
+    background-image: url('destructible_wall.png');
+}
+
+.cell.bombs {
+    background-image: url('bomb.png');
+    animation: bomb-blink 0.8s infinite;
+}
+
+/* ✅ CORRECTION: Joueurs avec directions */
+.cell.player {
+    z-index: 10;
+}
+
+.cell.player.front {
     background-image: url('wall-front.png');
 }
 
-
-.player.back {
+.cell.player.back {
     background-image: url('wall-back.png');
 }
 
-.player.left {
+.cell.player.left {
     background-image: url('wall-left.png');
 }
 
-.player.right {
+.cell.player.right {
     background-image: url('wall-right.png');
 }
 
-.empty {
-    background-color: transparent; /* Background for empty cells */
+/* ✅ CORRECTION: Joueur avec bombe */
+.cell.player.has-bomb::after {
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 40px;
+    height: 40px;
+    background-image: url('bomb.png');
+    background-size: cover;
+    border-radius: 50%;
+    z-index: 9; /* Au-dessus du joueur */
+    animation: bomb-blink 0.8s infinite;
+}
+
+/* Animations */
+@keyframes bomb-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.5; }
+}
+
+.cell.empty {
+    background-color: transparent;
 }
