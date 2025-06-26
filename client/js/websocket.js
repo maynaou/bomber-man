@@ -139,3 +139,6 @@ function renderBomb(username,pixelX, pixelY) {
 
     // 💥 Explosion après 3 secondes (facultatif)
 }
+
+
+

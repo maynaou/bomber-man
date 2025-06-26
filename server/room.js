@@ -174,6 +174,7 @@ export class Room {
 }
 
     handleBombExplosion() {
+        this.gameMap.updateMapData();
         this.broadcast({
             type: 'game_start',
             players: Array.from(this.players.values()).map(p => ({
