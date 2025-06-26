@@ -104,7 +104,7 @@ export class Room {
     startGame() {
         this.gameState = 'playing';
         const playerIds = Array.from(this.players.keys());
-        this.gameMap = new GenerateMapGame(13, 15, playerIds);
+        this.gameMap = new GenerateMapGame(13, 15, playerIds, this,Array.from(this.players.values()));
         const mapData = this.gameMap.mapData;
         this.broadcast({
             type: 'game_start',
@@ -134,28 +134,67 @@ export class Room {
         }
     }
 
-    handlePlayerMove(data) {
+ handlePlayerMove(data) {
         Array.from(this.players.values()).forEach((player) => {
             if (data.username === player.username) {
-                const mapData = this.gameMap.moveplayer(data.direction, player.id)
-                this.broadcast({
-                    type: 'game_start',
-                    players: Array.from(this.players.values()).map(p => ({
-                        id: p.id,
-                        username: p.username,
-                    })),
-                    map: {
-                        data: mapData,
-                        rows: this.gameMap.rows,
-                        cols: this.gameMap.cols,
-                        activeBombs: this.gameMap.activeBombs
-                    }
-                });
+                // Utiliser la nouvelle méthode avec les pixels
+                const moveResult = this.gameMap.movePlayerByPixels(
+                    data.currentPixelX, 
+                    data.currentPixelY, 
+                    data.direction, 
+                    player.id
+                );
+                
+
+                if (moveResult && moveResult.success) {
+                    // ✅ CORRECTION 2: Envoyer la position mise à jour pour maintenir le focus
+                    this.broadcast({
+                        type: 'player_moved',
+                        playerId: player.id,
+                        username: player.username,
+                        pixelX: moveResult.pixelX,
+                        pixelY: moveResult.pixelY,
+                        direction: moveResult.direction,
+                        action: moveResult.action
+                    });
+
+                    // Envoyer aussi l'état complet de la carte
+                    /*this.broadcast({
+                        type: 'game_start',
+                        players: Array.from(this.players.values()).map(p => ({
+                            id: p.id,
+                            username: p.username,
+                        })),
+                        map: {
+                            data: this.gameMap.mapData,
+                            rows: this.gameMap.rows,
+                            cols: this.gameMap.cols,
+                            activeBombs: this.gameMap.activeBombs,
+                        }
+                    });*/
+                }
             }
         })
     }
 
+    handleBombExplosion() {
+        this.broadcast({
+            type: 'game_start',
+            players: Array.from(this.players.values()).map(p => ({
+                id: p.id,
+                username: p.username,
+            })),
+            map: {
+                data: this.gameMap.mapData,
+                rows: this.gameMap.rows,
+                cols: this.gameMap.cols,
+                activeBombs: this.gameMap.activeBombs
+            }
+        });
+    }
+
     broadcast(message) {
+ 
         const messageStr = JSON.stringify(message);
         this.players.forEach(player => {
             if (player.ws.readyState === 1) { // WebSocket.OPEN = 1
@@ -168,6 +207,6 @@ export class Room {
             }
 
         });
-    
+
     }
 }

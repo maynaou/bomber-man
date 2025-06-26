@@ -28,6 +28,9 @@ wss.on('connection', (ws) => {
 
                     break;
                  case 'move':
+
+                 //console.log(data);
+                 
                     
                 room.handlePlayerMove(data); // direction = 'up', 'down' etc.
                   break

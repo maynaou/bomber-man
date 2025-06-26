@@ -46,18 +46,18 @@ button:hover {
     background: #1a1a1a;
 }
 
-/* ✅ CORRECTION: Map du jeu */
+/* Map du jeu avec positionnement relatif pour les joueurs absolus */
 .game-map {
     display: grid;
     gap: 0;
     border: 3px solid #666;
     background-image: url('floor.png');
     background-size: 40px 40px;
-    /* Répéter l'image de sol */
     background-repeat: repeat;
+    position: relative; /* Important pour le positionnement absolu des joueurs */
 }
 
-/* ✅ CORRECTION: Cellules de base */
+/* Cellules de base */
 .cell {
     width: 40px;
     height: 40px;
@@ -67,7 +67,7 @@ button:hover {
     background-repeat: no-repeat;
 }
 
-/* ✅ CORRECTION: Styles pour les différents éléments */
+/* Styles pour les différents éléments */
 .cell.wall {
     background-image: url('wall.png');
 }
@@ -81,9 +81,20 @@ button:hover {
     animation: bomb-blink 0.8s infinite;
 }
 
-/* ✅ CORRECTION: Joueurs avec directions */
+.cell.cutted {
+    width: 40px;
+    height: 40px;
+    background-image: url('cutted.gif');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Joueurs avec positionnement en grille (méthode originale corrigée) */
 .cell.player {
     z-index: 10;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .cell.player.front {
@@ -102,7 +113,34 @@ button:hover {
     background-image: url('wall-right.png');
 }
 
-/* ✅ CORRECTION: Joueur avec bombe */
+/* Joueurs avec positionnement absolu (méthode alternative) */
+.player-absolute {
+    width: 40px;
+    height: 40px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    pointer-events: auto;
+    outline: none;
+}
+
+.player-absolute.front {
+    background-image: url('wall-front.png');
+}
+
+.player-absolute.back {
+    background-image: url('wall-back.png');
+}
+
+.player-absolute.left {
+    background-image: url('wall-left.png');
+}
+
+.player-absolute.right {
+    background-image: url('wall-right.png');
+}
+
+/* Joueur avec bombe (méthode grille) */
 .cell.player.has-bomb::after {
     content: '';
     position: absolute;
@@ -113,7 +151,22 @@ button:hover {
     background-image: url('bomb.png');
     background-size: cover;
     border-radius: 50%;
-    z-index: 9; /* Au-dessus du joueur */
+    z-index: 9;
+    animation: bomb-blink 0.8s infinite;
+}
+
+/* Joueur avec bombe (méthode absolue) */
+.player-absolute.has-bomb::after {
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 40px;
+    height: 40px;
+    background-image: url('bomb.png');
+    background-size: cover;
+    border-radius: 50%;
+    z-index: 9;
     animation: bomb-blink 0.8s infinite;
 }
 
@@ -126,3 +179,9 @@ button:hover {
 .cell.empty {
     background-color: transparent;
 }
+
+/* Animation de mouvement fluide pour les joueurs */
+.player-absolute {
+    transition: transform 0.2s ease-in-out;
+}
+
