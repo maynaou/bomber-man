@@ -135,19 +135,29 @@ export class Room {
     }
 
  handlePlayerMove(data) {
-        Array.from(this.players.values()).forEach((player) => {
-            if (data.username === player.username) {
-                // Utiliser la nouvelle méthode avec les pixels
-                const moveResult = this.gameMap.movePlayerByPixels(
-                    data.currentPixelX, 
-                    data.currentPixelY, 
-                    data.direction, 
-                    player.id
-                );
-                
-
-                if (moveResult && moveResult.success) {
-                    // ✅ CORRECTION 2: Envoyer la position mise à jour pour maintenir le focus
+    Array.from(this.players.values()).forEach((player) => {
+        if (data.username === player.username) {
+            const moveResult = this.gameMap.movePlayerByPixels(
+                data.currentPixelX, 
+                data.currentPixelY, 
+                data.direction, 
+                player.id
+            );
+            
+            if (moveResult && moveResult.success) {
+                if (moveResult.action === 'bomb') {
+                    // ✅ CORRECTION: Envoyer l'état complet de la carte quand une bombe est placée
+                    this.broadcast({
+                        type: 'place_bombs',
+                        playerId: player.id,
+                        username: player.username,
+                        pixelX: moveResult.pixelX,
+                        pixelY: moveResult.pixelY,
+                        direction: moveResult.direction,
+                        action: moveResult.action
+                    });
+                } else {
+                    // Pour les mouvements normaux
                     this.broadcast({
                         type: 'player_moved',
                         playerId: player.id,
@@ -157,25 +167,11 @@ export class Room {
                         direction: moveResult.direction,
                         action: moveResult.action
                     });
-
-                    // Envoyer aussi l'état complet de la carte
-                    /*this.broadcast({
-                        type: 'game_start',
-                        players: Array.from(this.players.values()).map(p => ({
-                            id: p.id,
-                            username: p.username,
-                        })),
-                        map: {
-                            data: this.gameMap.mapData,
-                            rows: this.gameMap.rows,
-                            cols: this.gameMap.cols,
-                            activeBombs: this.gameMap.activeBombs,
-                        }
-                    });*/
                 }
             }
-        })
-    }
+        }
+    })
+}
 
     handleBombExplosion() {
         this.broadcast({

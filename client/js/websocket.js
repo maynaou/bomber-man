@@ -58,9 +58,16 @@ function handleMessage(message) {
                 }
             }, 100);
             break;
+            case 'bomb_exploded' : 
+                   removeBombFromMap(message.r, message.c);
+            break;
         case 'player_moved':            
             // ✅ NOUVEAU: Gérer la mise à jour des positions en pixels
             updatePlayerPosition(message.username, message.pixelX, message.pixelY, message.direction);
+            break;
+        case 'place_bombs':
+            renderBomb(message.username,message.pixelX,message.pixelY)
+            //updateBombsPosition(message.username,message.pixelX,message.pixelY,message.direction);
             break;
         case 'error':
             console.error("Server error:", message.message);
@@ -70,6 +77,25 @@ function handleMessage(message) {
             console.warn("Unknown message type:", message.type, "Full message:", message);
     }
 }
+
+
+function removeBombFromMap(r, c) {
+    console.log("**************************************");
+    
+    // Trouve la bombe par position
+    const bombs = document.querySelectorAll('.bomb-absolute');
+    console.log(bombs);
+    bombs.forEach(bomb => {
+        const bx = bomb.dataset.pixelX;
+        const by = bomb.dataset.pixelY;
+        
+        if (bx === c && by === r) 
+            console.log("🧹 Removing bomb at", bx, by);{
+            bomb.remove(); // 💥 supprime visuellement
+        }
+    });
+}
+
 
 function updatePlayerPosition(username, pixelX, pixelY, direction) {
         let playerElement = document.getElementById(`player-controlled-${username}`);
@@ -93,4 +119,23 @@ function updatePlayerPosition(username, pixelX, pixelY, direction) {
             }, 0);
         }
     }
+}
+
+function renderBomb(username,pixelX, pixelY) {
+    const bombElement = document.createElement("div");
+    bombElement.className = "bomb-absolute blink";
+    bombElement.id = `${username}`
+    bombElement.style.position = "absolute";
+    bombElement.style.width = "40px";
+    bombElement.style.height = "40px";
+    bombElement.style.transform = `translate(${pixelX}px, ${pixelY}px)`;
+    bombElement.style.zIndex = "8";
+    bombElement.style.backgroundImage = "url('bomb.png')"; // 🔁 mets le bon chemin
+    bombElement.style.backgroundSize = "cover";
+    bombElement.dataset.pixelX = pixelX;
+    bombElement.dataset.pixelY = pixelY;
+
+    document.getElementById("map")?.appendChild(bombElement);
+
+    // 💥 Explosion après 3 secondes (facultatif)
 }

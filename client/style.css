@@ -185,3 +185,25 @@ button:hover {
     transition: transform 0.2s ease-in-out;
 }
 
+.bomb-absolute.blink {
+    animation: bomb-blink 0.8s infinite;
+    border-radius: 50%;
+}
+
+@keyframes bomb-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.5; }
+}
+
+/* 💥 Explosion (optionnel) */
+.bomb-absolute.explode {
+    background-image: url('cutted.gif'); /* ← image d’explosion */
+    animation: explode-blink 0.3s ease-out;
+}
+
+@keyframes explode-blink {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
+

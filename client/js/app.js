@@ -36,7 +36,7 @@ export function App(gameState, players = [], seconds = {}) {
         }
 
         // Vérifier s'il y a une bombe à cette position
-        const hasBomb = activeBombs.some(bomb => bomb.r === r && bomb.c === c);
+         const hasBomb = activeBombs.some(bomb => bomb.r === r && bomb.c === c);
 
         switch (cellType) {
           case 'wall':
