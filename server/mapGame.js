@@ -24,13 +24,15 @@ export class GenerateMapGame {
             const player = this.players.find(p => p.id === id);
             const username = player ? player.username : `Player${index + 1}`; // Fallback name
 
+            //console.log(pixelX,pixelY,this.cellSize,cornerPositions[index].c);
+            
             return {
                 username: username,
                 id,
                 r: cornerPositions[index].r,
                 c: cornerPositions[index].c,
-                pixelX: cornerPositions[index].c * this.cellSize, // Position en pixels X
-                pixelY: cornerPositions[index].r * this.cellSize, // Position en pixels Y
+                pixelX: cornerPositions[index].c * 40, // Position en pixels X
+                pixelY: cornerPositions[index].r * 40, // Position en pixels Y
                 direction: 'front',
                 lastBombCell: null
             };
@@ -44,7 +46,7 @@ export class GenerateMapGame {
             const row = [];
             for (let c = 0; c < this.cols; c++) {
                 let cellType = 'empty';
-                const playerHere = this.playerPositions.find(p => p.r === r && p.c === c);
+                //const playerHere = this.playerPositions.find(p => p.r === r && p.c === c);
 
                 if (r === 0 || r === this.rows - 1 || c === 0 || c === this.cols - 1) {
                     cellType = 'wall';
@@ -52,10 +54,7 @@ export class GenerateMapGame {
                 else if (r % 2 === 0 && c % 2 === 0) {
                     cellType = 'wall';
                 }
-                else if (playerHere) {
-
-                    cellType = `player ${playerHere.username} ${playerHere.direction}`;
-                } else if (
+                 else if (
                     this.playerPositions.some(p =>
                         Math.abs(p.r - r) <= 1 && Math.abs(p.c - c) <= 1
                     )
@@ -243,7 +242,7 @@ updateBombGracePeriod(playerId) {
     }
 }
 
-/*updateMapData() {
+updateMapData() {
     // Nettoyer d'abord toutes les cellules joueurs
     for (let r = 0; r < this.rows; r++) {
         for (let c = 0; c < this.cols; c++) {
@@ -256,7 +255,7 @@ updateBombGracePeriod(playerId) {
     this.playerPositions.forEach(player => {
         this.mapData[player.r][player.c] = `player ${player.username} ${player.direction}`;
     });
-}*/
+}
 
 
     placeBombs(r, c, currentPixelY, currentPixelX, playerId) {
@@ -269,22 +268,22 @@ updateBombGracePeriod(playerId) {
                 player.lastBombCell = { r, c }; // 🔒 mémoriser la cellule de la bombe
              }
 
+         
+
             setTimeout(() => {
-                this.explodeBomb(r, c);
-                this.room.broadcast({
+                 this.room.broadcast({
                     type: 'bomb_exploded',
                     r: currentPixelY,
                     c: currentPixelX,
-                });
-
+                  });
+                this.explodeBomb(r, c);
                 this.room.handleBombExplosion()
             }, 4000);
 
             setTimeout(() => {
                 this.explodeBomb(r, c);
-
                 this.room.handleBombExplosion()
-            }, 4500);
+            }, 4700);
 
         }
 

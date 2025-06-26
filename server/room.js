@@ -104,8 +104,10 @@ export class Room {
     startGame() {
         this.gameState = 'playing';
         const playerIds = Array.from(this.players.keys());
-        this.gameMap = new GenerateMapGame(13, 15, playerIds, this,Array.from(this.players.values()));
+        this.gameMap = new GenerateMapGame(13, 15, playerIds, this, Array.from(this.players.values()));
         const mapData = this.gameMap.mapData;
+        console.log(this.gameMap.playerPositions);
+
         this.broadcast({
             type: 'game_start',
             players: Array.from(this.players.values()).map(p => ({
@@ -115,7 +117,8 @@ export class Room {
             map: {
                 data: mapData,
                 rows: this.gameMap.rows,
-                cols: this.gameMap.cols
+                cols: this.gameMap.cols,
+                playerPositions: this.gameMap.playerPositions
             }
         });
     }
@@ -134,44 +137,47 @@ export class Room {
         }
     }
 
- handlePlayerMove(data) {
-    Array.from(this.players.values()).forEach((player) => {
-        if (data.username === player.username) {
-            const moveResult = this.gameMap.movePlayerByPixels(
-                data.currentPixelX, 
-                data.currentPixelY, 
-                data.direction, 
-                player.id
-            );
-            
-            if (moveResult && moveResult.success) {
-                if (moveResult.action === 'bomb') {
-                    // ✅ CORRECTION: Envoyer l'état complet de la carte quand une bombe est placée
-                    this.broadcast({
-                        type: 'place_bombs',
-                        playerId: player.id,
-                        username: player.username,
-                        pixelX: moveResult.pixelX,
-                        pixelY: moveResult.pixelY,
-                        direction: moveResult.direction,
-                        action: moveResult.action
-                    });
-                } else {
-                    // Pour les mouvements normaux
-                    this.broadcast({
-                        type: 'player_moved',
-                        playerId: player.id,
-                        username: player.username,
-                        pixelX: moveResult.pixelX,
-                        pixelY: moveResult.pixelY,
-                        direction: moveResult.direction,
-                        action: moveResult.action
-                    });
+    handlePlayerMove(data) {
+        Array.from(this.players.values()).forEach((player) => {
+            if (data.username === player.username) {
+                const moveResult = this.gameMap.movePlayerByPixels(
+                    data.currentPixelX,
+                    data.currentPixelY,
+                    data.direction,
+                    player.id
+                );
+
+                if (moveResult && moveResult.success) {
+                    if (moveResult.action === 'bomb') {
+                        // ✅ CORRECTION: Envoyer l'état complet de la carte quand une bombe est placée
+                        this.broadcast({
+                            type: 'place_bombs',
+                            playerId: player.id,
+                            username: player.username,
+                            pixelX: moveResult.pixelX,
+                            pixelY: moveResult.pixelY,
+                            direction: moveResult.direction,
+                            action: moveResult.action
+                        });
+                    } else {
+                        this.broadcast({
+                            type: 'game_start',
+                            players: Array.from(this.players.values()).map(p => ({
+                                id: p.id,
+                                username: p.username,
+                            })),
+                            map: {
+                                data: this.gameMap.mapData,
+                                rows: this.gameMap.rows,
+                                cols: this.gameMap.cols,
+                                playerPositions: this.gameMap.playerPositions
+                            }
+                        });
+                    }
                 }
             }
-        }
-    })
-}
+        })
+    }
 
     handleBombExplosion() {
         this.gameMap.updateMapData();
@@ -185,13 +191,14 @@ export class Room {
                 data: this.gameMap.mapData,
                 rows: this.gameMap.rows,
                 cols: this.gameMap.cols,
-                activeBombs: this.gameMap.activeBombs
+                activeBombs: this.gameMap.activeBombs,
+                playerPositions : this.gameMap.playerPositions
             }
         });
     }
 
     broadcast(message) {
- 
+
         const messageStr = JSON.stringify(message);
         this.players.forEach(player => {
             if (player.ws.readyState === 1) { // WebSocket.OPEN = 1

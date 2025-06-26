@@ -59,7 +59,7 @@ function handleMessage(message) {
             }, 100);
             break;
             case 'bomb_exploded' : 
-                   removeBombFromMap(message.r, message.c);
+                removeBombFromMap(message.r, message.c);
             break;
         case 'player_moved':            
             // ✅ NOUVEAU: Gérer la mise à jour des positions en pixels

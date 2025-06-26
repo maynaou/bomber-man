@@ -31,9 +31,9 @@ export function App(gameState, players = [], seconds = {}) {
         let cellClass = 'cell';
 
         // Ignorer les joueurs pour les cellules de base
-        if (cellType.startsWith('player')) {
+        /*if (cellType.startsWith('player')) {
           cellType = 'empty';
-        }
+        }*/
 
         // Vérifier s'il y a une bombe à cette position
          const hasBomb = activeBombs.some(bomb => bomb.r === r && bomb.c === c);
@@ -71,53 +71,44 @@ export function App(gameState, players = [], seconds = {}) {
    // console.log("username : ", username);
 
     // Créer les éléments joueurs avec positionnement absolu
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        let cellType = mapData[r][c];
+    playerPositions.forEach(player => {
 
-        if (cellType.startsWith('player')) {
-         // console.log("cellType : ", cellType);
+       console.log(player.pixelX,player.pixelY);
+       
+        const isCurrentUser = player.username === globalUsername;
+        const hasBomb = activeBombs.some(bomb => 
+            bomb.r === Math.floor(player.pixelY / 40) && 
+            bomb.c === Math.floor(player.pixelX / 40)
+        );
 
-          const direction = cellType.split(" ")[2] || 'front';
-          const hasBomb = activeBombs.some(bomb => bomb.r === r && bomb.c === c);
-          const isCurrentUser = cellType.split(" ")[1] === globalUsername;
+        console.log("hasbomb : ", hasBomb);
+        
 
-
-          const pixelX = c * 40;
-          const pixelY = r * 40;
-           console.log(r,c,"----------------",pixelX,pixelY);
-           
-          const playerElement = h("div", {
-            class: `player-absolute ${direction}${hasBomb ? ' has-bomb' : ''}`,
+        const playerElement = h("div", {
+            class: `player-absolute ${player.direction}${hasBomb ? ' has-bomb' : ''}`,
             style: `
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      transform: translate(${pixelX}px, ${pixelY}px);
-      z-index: 10;
-      transition: transform 0.2s ease;
-    `,
-            'data-pixel-x': pixelX,
-            'data-pixel-y': pixelY,
-            'data-grid-r': r,
-            'data-grid-c': c,
-            'data-username': cellType.split(" ")[1], // ✅ AJOUT: Attribut pour identifier le joueur
+                position: absolute;
+                width: 40px;
+                height: 40px;
+                transform: translate(${player.pixelX}px, ${player.pixelY}px);
+                z-index: 10;
+                transition: transform 0.2s ease;
+            `,
+            'data-pixel-x': player.pixelX,
+            'data-pixel-y': player.pixelY,
+            'data-grid-r': player.r,
+            'data-grid-c': player.c,
+            'data-username': player.username,
             onkeydown: isCurrentUser ? (e) => {
-              e.preventDefault();
-              const currentPixelX = parseInt(e.target.dataset.pixelX) || pixelX;
-              const currentPixelY = parseInt(e.target.dataset.pixelY) || pixelY;
-              console.log("Key pressed by current user:", e.key, currentPixelX, currentPixelY);
-              handlemoveplayer(e, globalUsername, currentPixelX, currentPixelY);
+                e.preventDefault();
+                handlemoveplayer(e, globalUsername, player.pixelX, player.pixelY);
             } : null,
             tabindex: isCurrentUser ? 0 : -1,
-            id: `player-controlled-${cellType.split(" ")[1]}`,
-          });
+            id: `player-controlled-${player.username}`,
+        });
 
-
-          playerElements.push(playerElement);
-        }
-      }
-    }
+        playerElements.push(playerElement);
+    });
 
     const mapContainer = h("div", {
       id: "map",
@@ -295,9 +286,9 @@ export function App(gameState, players = [], seconds = {}) {
     const rows = seconds.map?.rows || 13;
     const cols = seconds.map?.cols || 15;
     const activeBombs = seconds.map?.activeBombs || [];
-
+    const playerPositions = seconds.map?.playerPositions || [];
     return h("div", { class: "game-container", onkeydown: (e) => { handlemoveplayer(e) } }, [
-      mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs) : h("div", {}, "Chargement de la carte..."),
+      mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs,playerPositions) : h("div", {}, "Chargement de la carte..."),
     ]);
   }
 

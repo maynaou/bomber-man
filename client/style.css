@@ -42,7 +42,7 @@ button:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    min-height: 80vh;
     background: #1a1a1a;
 }
 
