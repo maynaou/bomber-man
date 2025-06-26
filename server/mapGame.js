@@ -88,21 +88,21 @@ export class GenerateMapGame {
         if (direction === 'Space' || direction === ' ') {
             console.log(oldGridR, oldGridC);
 
-          const hasBomb =  this.placeBombs(oldGridR, oldGridC,currentPixelX,currentPixelY,playerId);
+            const hasBomb = this.placeBombs(oldGridR, oldGridC, currentPixelX, currentPixelY, playerId);
 
             // ✅ CORRECTION: Mettre à jour la carte après avoir placé la bombe
             if (!hasBomb) {
-              //this.updateMapData();
+                //this.updateMapData();
 
-            return {
-                success: true,
-                pixelX: currentPixelX,
-                pixelY: currentPixelY,
-                direction: player.direction,
-                action: 'bomb'
-            };
+                return {
+                    success: true,
+                    pixelX: currentPixelX,
+                    pixelY: currentPixelY,
+                    direction: player.direction,
+                    action: 'bomb'
+                };
             }
-           
+
         }
 
         // Calculate new pixel positions
@@ -131,7 +131,7 @@ export class GenerateMapGame {
                 return null; // Invalid direction
         }
 
-        if (!this.isValidMove(newPixelX, newPixelY, 40)) {
+        if (!this.isValidMove(newPixelX, newPixelY, 40, playerId)) {
             console.log("Movement blocked - staying at current position");
             return null; // Invalid movement
         }
@@ -150,8 +150,8 @@ export class GenerateMapGame {
         player.pixelX = newPixelX;
         player.pixelY = newPixelY;
 
-        // Update the map
-        //this.updateMapData();
+                this.updateBombGracePeriod(playerId, newGridR, newGridC);
+
 
         return {
             success: true,
@@ -163,7 +163,7 @@ export class GenerateMapGame {
     }
 
     // Fixed validation method
-    isValidMove(pixelX, pixelY, playerSize = 40) {
+    isValidMove(pixelX, pixelY, playerSize = 40, playerId) {
         // Vérifier les limites de la carte en pixels
 
         // Calculer quelles cases la hitbox du joueur touche
@@ -188,53 +188,95 @@ export class GenerateMapGame {
                     //console.log(`Collision avec ${cellType} à (${r},${c})`);
                     return false;
                 }
+
+               // const isPlayerMove = this.isPlayerMoveBomb(r,c) 
+
+                const bombHere = this.activeBombs.find(b => b.r === r && b.c === c);
+                if (bombHere) {
+                    console.log(`💣 Bombe trouvée à (${r},${c}):`, bombHere);
+
+                    // Si c'est la bombe du joueur ET qu'elle peut être traversée
+                    if (bombHere.playerId === playerId && bombHere.canPassThrough) {
+                        console.log("✅ Période de grâce - joueur peut passer");
+                        continue; // Permettre le passage
+                    } else {
+                        console.log("❌ Bombe bloque le mouvement");
+                        return false; // Bloquer
+                    }
+                }
             }
         }
 
         return true;
     }
 
-    placeBombs(r, c,currentPixelY,currentPixelX,playerId) {
-         const hasBomb = this.activeBombs.some(bomb => bomb.playerId === playerId);
-    if (!hasBomb) {
-        this.activeBombs.push({ r, c, playerId });
-       //this.updateMapData();
-        console.log("HHHHHHHHHHHHHHHHHHHHH",this.activeBombs);
+   
+
+        updateBombGracePeriod(playerId, currentR, currentC) {
+        // Find player's bomb and check if they moved away from it
+        const playerBomb = this.activeBombs.find(bomb => 
+            bomb.playerId === playerId && bomb.canPassThrough
+        );
         
-        setTimeout(() => {
-            this.explodeBomb(r, c);
-             this.room.broadcast({
-                type: 'bomb_exploded',
-                r:currentPixelY,
-                c:currentPixelX,
-            });
-
-             this.room.handleBombExplosion()
-        }, 2000);
-
-        setTimeout(() => {
-            this.explodeBomb(r, c);
-           
-            this.room.handleBombExplosion()
-        }, 2500);
-
+        if (playerBomb && (playerBomb.r !== currentR || playerBomb.c !== currentC)) {
+            playerBomb.canPassThrough = false;
+            console.log(`Player ${playerId} moved away from bomb, grace period ended`);
+        }
     }
 
-    return hasBomb
+    placeBombs(r, c, currentPixelY, currentPixelX, playerId) {
+        const hasBomb = this.activeBombs.some(bomb => bomb.playerId === playerId);
+        if (!hasBomb) {
+            this.activeBombs.push({ r, c, playerId, canPassThrough: true });
+            //this.updateMapData();
+            console.log("HHHHHHHHHHHHHHHHHHHHH", this.activeBombs);
+
+            /*setTimeout(() => {
+                const bomb = this.activeBombs.find(b => b.r === r && b.c === c && b.playerId === playerId);
+                if (bomb) {
+                    bomb.canPassThrough = false;
+                    console.log("⏰ Période de grâce terminée pour la bombe à", r, c);
+                }
+            }, 1000);*/
+
+
+            setTimeout(() => {
+                this.explodeBomb(r, c);
+                this.room.broadcast({
+                    type: 'bomb_exploded',
+                    r: currentPixelY,
+                    c: currentPixelX,
+                });
+
+                this.room.handleBombExplosion()
+            }, 4000);
+
+            setTimeout(() => {
+                this.explodeBomb(r, c);
+
+                this.room.handleBombExplosion()
+            }, 4500);
+
+        }
+
+        return hasBomb
 
     }
 
     explodeBomb(r, c) {
         this.activeBombs = this.activeBombs.filter(b => !(b.r === r && b.c === c));
 
-        if (this.mapData[r][c] === 'bombs') {
-            const playerHere = this.playerPositions.find(p => p.r === r && p.c === c);
-            if (playerHere) {
-                this.mapData[r][c] = `player ${playerHere.direction}`;
-            } else {
-                this.mapData[r][c] = 'empty';
-            }
-        }
+        /* if (this.mapData[r][c] === 'bombs') {
+ 
+             console.log("**************************************");
+             
+             const playerHere = this.playerPositions.find(p => p.r === r && p.c === c);
+             if (playerHere) {
+                 this.mapData[r][c] = `player ${playerHere.direction}`;
+             } else {
+                 this.mapData[r][c] = 'empty';
+             }
+         }*/
 
         if (this.mapData[r][c] === 'cutted') {
             this.mapData[r][c] = 'empty';
@@ -265,84 +307,4 @@ export class GenerateMapGame {
             }
         }
     }
-
-    /* placeBombs(r, c) {
-     const hasBomb = this.activeBombs.some(bomb => bomb.r === r && bomb.c === c);
-     if (!hasBomb) {
-         const bomb = {
-             r: r,
-             c: c,
-             timer: 500,
-             placed: Date.now()
-         };
- 
-         this.activeBombs.push(bomb);
- 
-         
-         
-         // ✅ CORRECTION: Mettre à jour immédiatement la carte pour afficher la bombe
-         if (this.mapData[r] && this.mapData[r][c] !== undefined) {
-             // Garder trace s'il y a un joueur à cette position
-             const playerHere = this.playerPositions.find(p => p.r === r && p.c === c);
-             if (playerHere) {
-                 this.mapData[r][c] = `player ${playerHere.username} ${playerHere.direction}`;
-             } else {
-                 this.mapData[r][c] = 'bombs';
-             }
-         }
-         
-         setTimeout(() => {            
-             this.explodeBomb(r, c);
-             this.room.handleBombExplosion();
-         }, 2000);
- 
-         setTimeout(() => {
-             this.explodeBomb(r, c);
-             this.room.handleBombExplosion();
-         }, 2500);
-     }
- }
- 
- 
-     explodeBomb(r, c) {
-         this.activeBombs = this.activeBombs.filter(b => !(b.r === r && b.c === c));
- 
-         if (this.mapData[r][c] === 'bombs') {
-             const playerHere = this.playerPositions.find(p => p.r === r && p.c === c);
-             if (playerHere) {
-                 this.mapData[r][c] = `player ${playerHere.direction}`;
-             } else {
-                 this.mapData[r][c] = 'empty';
-             }
-         }
- 
-         if (this.mapData[r][c] === 'cutted') {
-             this.mapData[r][c] = 'empty';
-         } else {
-             this.mapData[r][c] = 'cutted';
-         }
- 
-         const directions = [
-             { dr: -1, dc: 0 }, // haut
-             { dr: 1, dc: 0 },  // bas
-             { dr: 0, dc: -1 }, // gauche
-             { dr: 0, dc: 1 }   // droite
-         ];
- 
-         for (const { dr, dc } of directions) {
-             const nr = r + dr;
-             const nc = c + dc;
- 
-             if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
-                 const target = this.mapData[nr][nc];
-                 if (target === 'block') {
-                     this.mapData[nr][nc] = 'cutted';
-                 } else if (target === 'empty') {
-                     this.mapData[nr][nc] = 'cutted';
-                 } else if (target === 'cutted') {
-                     this.mapData[nr][nc] = 'empty';
-                 }
-             }
-         }
-     }*/
 }
