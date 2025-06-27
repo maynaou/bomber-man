@@ -1,5 +1,5 @@
 export class GenerateMapGame {
-    constructor(rows, cols, playerIds, room, players,playerclass) {
+    constructor(rows, cols, playerIds, room, players, playerclass) {
         this.rows = rows;
         this.cols = cols;
         this.playerclass = playerclass
@@ -8,7 +8,7 @@ export class GenerateMapGame {
         this.playerPositions = this.generatePlayerPositions();
         this.mapData = this.generateMapData();
         this.activeBombs = [];
-        this.cellSize = 40; // Taille d'une cellule en pixels
+        this.cellSize = 40;
         this.room = room;
     }
 
@@ -21,21 +21,18 @@ export class GenerateMapGame {
         ];
 
         return this.playerIds.map((id, index) => {
-            // Find the player object that matches this ID
             const player = this.players.find(p => p.id === id);
-            const username = player ? player.username : `Player${index + 1}`; // Fallback name
+            const username = player ? player.username : `Player${index + 1}`;
 
-            //console.log(pixelX,pixelY,this.cellSize,cornerPositions[index].c);
-            
             return {
                 username: username,
                 id,
                 r: cornerPositions[index].r,
                 c: cornerPositions[index].c,
-                pixelX: cornerPositions[index].c * 40, // Position en pixels X
-                pixelY: cornerPositions[index].r * 40, // Position en pixels Y
+                pixelX: cornerPositions[index].c * 40,
+                pixelY: cornerPositions[index].r * 40,
                 direction: 'front',
-                isAlive : true,
+                isAlive: true,
                 lastBombCell: null
             };
         });
@@ -54,7 +51,7 @@ export class GenerateMapGame {
                 else if (r % 2 === 0 && c % 2 === 0) {
                     cellType = 'wall';
                 }
-                 else if (
+                else if (
                     this.playerPositions.some(p =>
                         Math.abs(p.r - r) <= 1 && Math.abs(p.c - c) <= 1
                     )
@@ -73,31 +70,29 @@ export class GenerateMapGame {
         return mapData;
     }
 
-    // ✅ NOUVELLE MÉTHODE: Mouvement en pixels avec validation
     movePlayerByPixels(currentPixelX, currentPixelY, direction, playerId) {
         const player = this.playerPositions.find(p => p.id === playerId);
         if (!player) return null;
 
-        // console.log("currentPixelX:", currentPixelX, "currentPixelY:", currentPixelY);
 
-        // Convert current pixels to grid coordinates
         const oldGridR = Math.floor(currentPixelY / this.cellSize);
         const oldGridC = Math.floor(currentPixelX / this.cellSize);
 
-        // Place bomb if space key is pressed
         if (direction === 'Space' || direction === ' ') {
-            console.log(oldGridR, oldGridC);
 
-            const hasBomb = this.placeBombs(oldGridR, oldGridC, oldGridR*this.cellSize,oldGridC*this.cellSize, playerId);
+            const hasBomb = this.placeBombs(playerId);
 
-            // ✅ CORRECTION: Mettre à jour la carte après avoir placé la bombe
             if (!hasBomb) {
-                //this.updateMapData();
+
+                const place_bombs = this.activeBombs.find(bomb => bomb.playerId === playerId);
+
+                console.log(this.activeBombs);
+                
 
                 return {
                     success: true,
-                    pixelX: oldGridC*this.cellSize,
-                    pixelY: oldGridR*this.cellSize,
+                    pixelX: place_bombs.pixelX,
+                    pixelY: place_bombs.pixelY,
                     direction: player.direction,
                     action: 'bomb'
                 };
@@ -105,14 +100,12 @@ export class GenerateMapGame {
 
         }
 
-        const moveSpeed = 4; // Convert to pixels per second
+        const moveSpeed = 4;
 
 
-        // Calculate new pixel positions
         let newPixelX = currentPixelX;
         let newPixelY = currentPixelY;
 
-        // Update direction and calculate new positions
         switch (direction) {
             case 'ArrowUp':
                 player.direction = 'back';
@@ -131,23 +124,16 @@ export class GenerateMapGame {
                 newPixelY = currentPixelY + moveSpeed;
                 break;
             default:
-                return null; // Invalid direction
+                return null;
         }
 
         if (!this.isValidMove(newPixelX, newPixelY, 40, playerId)) {
-           // console.log("Movement blocked - staying at current position");
             return null; // Invalid movement
         }
 
-        // Convert new pixel positions to grid coordinates
         const newGridR = Math.floor(newPixelY / this.cellSize);
         const newGridC = Math.floor(newPixelX / this.cellSize);
 
-        //console.log(direction, "newGridR:", newGridR, "newGridC:", newGridC, "oldGridR:", oldGridR, "oldGridC:", oldGridC);   
-
-        // VALIDATION SUPPLÉMENTAIRE : Vérifier les limites en pixels
-
-        // Update player position
         player.r = newGridR;
         player.c = newGridC;
         player.pixelX = newPixelX;
@@ -155,52 +141,35 @@ export class GenerateMapGame {
 
         this.updateBombGracePeriod(playerId);
 
-
         return {
             success: true,
             action: 'move'
         };
     }
 
-    // Fixed validation method
     isValidMove(pixelX, pixelY, playerSize = 40, playerId) {
-        // Vérifier les limites de la carte en pixels
-
-        // Calculer quelles cases la hitbox du joueur touche
         const topLeftGridR = Math.floor(pixelY / this.cellSize);
         const topLeftGridC = Math.floor(pixelX / this.cellSize);
         const bottomRightGridR = Math.floor((pixelY + playerSize - 1) / this.cellSize);
         const bottomRightGridC = Math.floor((pixelX + playerSize - 1) / this.cellSize);
 
-        // console.log(`Joueur occupe cases: (${topLeftGridR},${topLeftGridC}) à (${bottomRightGridR},${bottomRightGridC})`);
-
-        // Vérifier toutes les cases que le joueur touche
         for (let r = topLeftGridR; r <= bottomRightGridR; r++) {
             for (let c = topLeftGridC; c <= bottomRightGridC; c++) {
                 if (r < 0 || r >= this.rows || c < 0 || c >= this.cols) {
-                    return false; // Hors limites
+                    return false;
                 }
 
                 const cellType = this.mapData[r][c];
 
-                // Bloquer sur murs et blocs
                 if (cellType === 'wall' || cellType === 'block') {
-                    //console.log(`Collision avec ${cellType} à (${r},${c})`);
                     return false;
                 }
 
-               // const isPlayerMove = this.isPlayerMoveBomb(r,c) 
-
                 const bombHere = this.activeBombs.find(b => b.r === r && b.c === c);
                 if (bombHere) {
-                    //console.log(`💣 Bombe trouvée à (${r},${c}):`, bombHere);
-
-                    // Si c'est la bombe du joueur ET qu'elle peut être traversée
                     if (bombHere.playerId === playerId && bombHere.canPassThrough) {
-                        //console.log("✅ Période de grâce - joueur peut passer");
                         continue; // Permettre le passage
                     } else {
-                        //console.log("❌ Bombe bloque le mouvement");
                         return false; // Bloquer
                     }
                 }
@@ -210,77 +179,81 @@ export class GenerateMapGame {
         return true;
     }
 
-   
-updateBombGracePeriod(playerId) {
-    const player = this.playerPositions.find(p => p.id === playerId);
-    if (!player || !player.lastBombCell) return;
 
-    const bomb = this.activeBombs.find(
-        b => b.playerId === playerId && b.canPassThrough
-    );
+    updateBombGracePeriod(playerId) {
+        const player = this.playerPositions.find(p => p.id === playerId);
+        if (!player || !player.lastBombCell) return;
 
-    if (!bomb) return;
+        const bomb = this.activeBombs.find(
+            b => b.playerId === playerId && b.canPassThrough
+        );
 
-    // 🔍 Calculer les pixels de la case de la bombe
-    const bombPixelX = bomb.c * this.cellSize;
-    const bombPixelY = bomb.r * this.cellSize;
+        if (!bomb) return;
 
-    // Si le joueur est encore dans cette zone (même partiellement), ne rien faire
-    const insideBombCell =
-        player.pixelX < bombPixelX + this.cellSize &&
-        player.pixelX + this.cellSize > bombPixelX &&
-        player.pixelY < bombPixelY + this.cellSize &&
-        player.pixelY + this.cellSize > bombPixelY;
+        const bombPixelX = bomb.c * this.cellSize;
+        const bombPixelY = bomb.r * this.cellSize;
 
-    if (!insideBombCell) {
-        bomb.canPassThrough = false;
-        player.lastBombCell = null;
-        // console.log(`⛔️ Player ${playerId} moved off bomb cell completely, grace period ended`);
+        const insideBombCell =
+            player.pixelX < bombPixelX + this.cellSize &&
+            player.pixelX + this.cellSize > bombPixelX &&
+            player.pixelY < bombPixelY + this.cellSize &&
+            player.pixelY + this.cellSize > bombPixelY;
+
+        if (!insideBombCell) {
+            bomb.canPassThrough = false;
+            player.lastBombCell = null;
+        }
     }
-}
 
-// updateMapData() {
-//     // Nettoyer d'abord toutes les cellules joueurs
-//     for (let r = 0; r < this.rows; r++) {
-//         for (let c = 0; c < this.cols; c++) {
-//             if (this.mapData[r][c].startsWith('player')) {
-//                 this.mapData[r][c] = 'empty';
-//             }
-//         }
-//     }
-    
-//     this.playerPositions.forEach(player => {
-//         this.mapData[player.r][player.c] = `player ${player.username} ${player.direction}`;
-//     });
-// }
-
-
-    placeBombs(r, c, currentPixelY, currentPixelX, playerId) {
+    placeBombs( playerId) {
         const hasBomb = this.activeBombs.some(bomb => bomb.playerId === playerId);
         if (!hasBomb) {
-            this.activeBombs.push({ r, c, playerId, canPassThrough: true });
-            //this.updateMapData();
-             const player = this.playerPositions.find(p => p.id === playerId);
-             if (player) {
-                player.lastBombCell = { r, c }; // 🔒 mémoriser la cellule de la bombe
-             }
 
-         
+            const player = this.playerPositions.find(p => p.id === playerId);
+        if (!player) return true;
+
+        // Calculer la position de grille basée sur les pixels du centre du joueur
+        const playerCenterX = player.pixelX + 20; // Centre du joueur (40px/2)
+        const playerCenterY = player.pixelY + 20;
+        
+        // Position de grille la plus proche du centre du joueur
+        const gridR = Math.floor(playerCenterY / this.cellSize);
+        const gridC = Math.floor(playerCenterX / this.cellSize);
+        
+        // Vérifier que la position est valide et qu'il n'y a pas déjà une bombe
+        if (gridR >= 0 && gridR < this.rows && 
+            gridC >= 0 && gridC < this.cols && 
+            !this.activeBombs.some(bomb => bomb.r === gridR && bomb.c === gridC)) {
+            
+            // Placer la bombe à la position de grille calculée
+            this.activeBombs.push({ 
+                r: gridR, 
+                c: gridC, 
+                playerId, 
+                canPassThrough: true,
+                pixelX: gridC * this.cellSize,
+                pixelY: gridR * this.cellSize
+            });
+            
+
+                 player.lastBombCell = { r: gridR, c: gridC };            }
+
+
 
             setTimeout(() => {
-                 this.room.broadcast({
+                this.room.broadcast({
                     type: 'bomb_exploded',
-                    r: currentPixelY,
-                    c: currentPixelX,
-                  });
-                this.explodeBomb(r, c,playerId);
+                    r: gridR * this.cellSize, // Coordonnées en pixels pour l'affichage
+                    c: gridC * this.cellSize
+                });
+                this.explodeBomb(gridR, gridC, playerId);
 
-                this.handleExplosionDamage(r,c)
+                //this.handleExplosionDamage(r,c)
                 this.room.handleBombExplosion()
             }, 4000);
 
             setTimeout(() => {
-                this.explodeBomb(r, c,playerId);
+                this.explodeBomb(gridR, gridC, playerId);
                 this.room.handleBombExplosion()
             }, 4700);
 
@@ -290,83 +263,81 @@ updateBombGracePeriod(playerId) {
 
     }
 
-        handleExplosionDamage(bombR, bombC) {
-        // Check if any player is at the bomb location
-        this.checkPlayerDamage(bombR, bombC);
+    /* handleExplosionDamage(bombR, bombC) {
+     // Check if any player is at the bomb location
+     this.checkPlayerDamage(bombR, bombC);
 
-        // Check explosion in all 4 directions
-        const directions = [
-            { dr: -1, dc: 0 }, // up
-            { dr: 1, dc: 0 },  // down
-            { dr: 0, dc: -1 }, // left
-            { dr: 0, dc: 1 }   // right
-        ];
+     // Check explosion in all 4 directions
+     const directions = [
+         { dr: -1, dc: 0 }, // up
+         { dr: 1, dc: 0 },  // down
+         { dr: 0, dc: -1 }, // left
+         { dr: 0, dc: 1 }   // right
+     ];
 
-        for (const { dr, dc } of directions) {
-            const nr = bombR + dr;
-            const nc = bombC + dc;
+     for (const { dr, dc } of directions) {
+         const nr = bombR + dr;
+         const nc = bombC + dc;
 
-            if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
-                this.checkPlayerDamage(nr, nc);
-            }
-        }
-    }
+         if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+             this.checkPlayerDamage(nr, nc);
+         }
+     }
+ }
 
-    // NEW METHOD: Check if a player is at a specific grid position and damage them
-    checkPlayerDamage(gridR, gridC) {
-        this.playerPositions.forEach(player => {
-            if (!player.isAlive) return;
+ // NEW METHOD: Check if a player is at a specific grid position and damage them
+ checkPlayerDamage(gridR, gridC) {
+     this.playerPositions.forEach(player => {
+         if (!player.isAlive) return;
 
-            // Check if player's current grid position matches the explosion position
-            if (player.r === gridR && player.c === gridC) {
-                this.damagePlayer(player.id);
-            }
-        });
-    }
+         // Check if player's current grid position matches the explosion position
+         if (player.r === gridR && player.c === gridC) {
+             this.damagePlayer(player.id);
+         }
+     });
+ }
 
-    // NEW METHOD: Handle player damage
-    damagePlayer(playerId) {
-        const player = this.playerPositions.find(p => p.id === playerId);
-        if (!player || !player.isAlive) return;
+ // NEW METHOD: Handle player damage
+ damagePlayer(playerId) {
+     const player = this.playerPositions.find(p => p.id === playerId);
+     if (!player || !player.isAlive) return;
 
-        this.playerclass.lives--;
-        console.log(`Player ${player.username} hit! Lives remaining: ${this.playerclass.lives}`);
+     this.playerclass.lives--;
+     console.log(`Player ${player.username} hit! Lives remaining: ${this.playerclass.lives}`);
 
-        // Broadcast life update to all clients
-        // this.room.broadcast({
-        //     type: 'player_life_updated',
-        //     playerId: playerId,
-        //     username: player.username,
-        //     lives: player.lives
-        // });
+     // Broadcast life update to all clients
+     // this.room.broadcast({
+     //     type: 'player_life_updated',
+     //     playerId: playerId,
+     //     username: player.username,
+     //     lives: player.lives
+     // });
 
-        // if (player.lives <= 0) {
-        //     player.isAlive = false;
-        //     console.log(`Player ${player.username} eliminated!`);
-            
-        //     // Broadcast player elimination
-        //     this.room.broadcast({
-        //         type: 'player_eliminated',
-        //         playerId: playerId,
-        //         username: player.username
-        //     });
+     // if (player.lives <= 0) {
+     //     player.isAlive = false;
+     //     console.log(`Player ${player.username} eliminated!`);
+         
+     //     // Broadcast player elimination
+     //     this.room.broadcast({
+     //         type: 'player_eliminated',
+     //         playerId: playerId,
+     //         username: player.username
+     //     });
 
-        //     // Check if game should end
-        //     this.checkGameEnd();
-        }
+     //     // Check if game should end
+     //     this.checkGameEnd();
+     }*/
 
-    explodeBomb(r, c,playerId) {
+    explodeBomb(r, c, playerId) {
         this.activeBombs = this.activeBombs.filter(b => !(b.r === r && b.c === c));
-                     const player = this.playerPositions.find(p => p.id === playerId);
-       
-         //console.log("--------------------------------------------",this.mapData[r][c],this.mapData[player.r][player.c]);
+        const player = this.playerPositions.find(p => p.id === playerId);
 
         if (this.mapData[r][c] === 'cutted') {
             this.mapData[r][c] = 'empty';
         } else if (this.mapData[r][c] === 'empty') {
             this.mapData[r][c] = 'cutted';
-        } 
-       
+        }
+
         const directions = [
             { dr: -1, dc: 0 }, // haut
             { dr: 1, dc: 0 },  // bas
@@ -390,5 +361,5 @@ updateBombGracePeriod(playerId) {
             }
         }
     }
-   
+
 }
