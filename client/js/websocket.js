@@ -3,7 +3,7 @@
 import { App } from "./app.js"
 import { renderAppFn } from "../framework/state.js";
 let socket;
-let currentUsername = null; 
+let currentUsername = null;
 export function connectToWebSocket(username) {
     socket = new WebSocket('ws://localhost:8070');
     currentUsername = username
@@ -19,16 +19,16 @@ export function connectToWebSocket(username) {
 
 // ✅ MODIFICATION: Envoyer les coordonnées en pixels
 export function handlemoveplayer(event, username, currentPixelX, currentPixelY) {
-   // console.log("username : ",event.key,username,currentPixelX,currentPixelY);
-    
-      let directionValue = event.key;
+    // console.log("username : ",event.key,username,currentPixelX,currentPixelY);
+
+    let directionValue = event.key;
     if (event.code) {
         directionValue = event.code;
-    } 
-    
+    }
+
     // Envoyer les coordonnées en pixels au serveur
-    socket.send(JSON.stringify({ 
-        type: 'move', 
+    socket.send(JSON.stringify({
+        type: 'move',
         direction: directionValue,
         username: username,
         currentPixelX: currentPixelX,
@@ -58,12 +58,43 @@ function handleMessage(message) {
                 }
             }, 100);
             break;
-            case 'bomb_exploded' : 
-                removeBombFromMap(message.r, message.c);
+        case 'bomb_exploded':
+            removeBombFromMap(message.r, message.c);
             break;
         case 'place_bombs':
-            renderBomb(message.username,message.pixelX,message.pixelY)
+            renderBomb(message.username, message.pixelX, message.pixelY)
             //updateBombsPosition(message.username,message.pixelX,message.pixelY,message.direction);
+            break;
+
+        case 'player_damaged':
+            // Re-render pour afficher l'animation de dégâts
+            renderAppFn(() => App("game_start", message.players || [], {
+                map: {
+                    playerPositions: message.playerPositions,
+                    data:message.mapData
+                }
+            }), mount);
+            setTimeout(() => {
+                const player = document.getElementById(`player-controlled-${currentUsername}`);
+                if (player) {
+                    player.focus();
+                }
+            }, 100);
+            break;
+        case 'player_damage_end':
+            // Re-render pour retirer l'animation de dégâts
+            renderAppFn(() => App("game_start", message.players || [], {
+                map: {
+                    playerPositions: message.playerPositions,
+                     data:message.mapData
+                }
+            }), mount);
+            setTimeout(() => {
+                const player = document.getElementById(`player-controlled-${currentUsername}`);
+                if (player) {
+                    player.focus();
+                }
+            }, 100);
             break;
         case 'error':
             console.error("Server error:", message.message);
@@ -77,22 +108,22 @@ function handleMessage(message) {
 
 function removeBombFromMap(r, c) {
     console.log("**************************************");
-    
+
     // Trouve la bombe par position
     const bombs = document.querySelectorAll('.bomb-absolute');
     console.log(bombs);
     bombs.forEach(bomb => {
         const bx = bomb.dataset.pixelX;
         const by = bomb.dataset.pixelY;
-        
-        if (bx === c && by === r) 
-            console.log("🧹 Removing bomb at", bx, by);{
+
+        if (bx === c && by === r)
+            console.log("🧹 Removing bomb at", bx, by); {
             bomb.remove(); // 💥 supprime visuellement
         }
     });
 }
 
-function renderBomb(username,pixelX, pixelY) {
+function renderBomb(username, pixelX, pixelY) {
     const bombElement = document.createElement("div");
     bombElement.className = "bomb-absolute blink";
     bombElement.id = `${username}`

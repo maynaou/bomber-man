@@ -190,10 +190,7 @@ button:hover {
     border-radius: 50%;
 }
 
-@keyframes bomb-blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.5; }
-}
+
 
 /* 💥 Explosion (optionnel) */
 .bomb-absolute.explode {
@@ -205,5 +202,35 @@ button:hover {
     0% { transform: scale(1); opacity: 1; }
     100% { transform: scale(2); opacity: 0; }
 }
+
+.player-absolute.damaged {
+    filter: hue-rotate(0deg) saturate(2) brightness(1.2);
+    background-color: rgba(255, 0, 0, 0.3);
+    animation: damage-flash 1.5s ease-in-out;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+}
+
+/* Effet de pulsation pour les joueurs endommagés */
+.player-absolute.damaged::after {
+      content: '';
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 40px;
+    height: 40px;
+    background-image: url('player.png');
+    background-size: cover;
+    border-radius: 50%;
+    z-index: 9;
+    animation: bomb-blink 0.8s infinite;
+}
+
+
+@keyframes bomb-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.5; }
+}
+
+
 
 

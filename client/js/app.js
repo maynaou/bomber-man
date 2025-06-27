@@ -71,44 +71,42 @@ export function App(gameState, players = [], seconds = {}) {
    // console.log("username : ", username);
 
     // Créer les éléments joueurs avec positionnement absolu
-    playerPositions.forEach(player => {
+   playerPositions.forEach(player => {
+    const isCurrentUser = player.username === globalUsername;
+    const hasBomb = activeBombs.some(bomb => 
+        bomb.r === Math.floor(player.pixelY / 40) && 
+        bomb.c === Math.floor(player.pixelX / 40)
+    );
 
-      //  console.log(player.pixelX,player.pixelY);
-       
-        const isCurrentUser = player.username === globalUsername;
-        const hasBomb = activeBombs.some(bomb => 
-            bomb.r === Math.floor(player.pixelY / 40) && 
-            bomb.c === Math.floor(player.pixelX / 40)
-        );
+    // ✅ AJOUT: Vérifier si le joueur est endommagé
+    const isDamaged = player.isDamaged || false;
 
-        // console.log("hasbomb : ", hasBomb);
-        
-
-        const playerElement = h("div", {
-            class: `player-absolute ${player.direction}${hasBomb ? ' has-bomb' : ''}`,
-            style: `
-                position: absolute;
-                width: 40px;
-                height: 40px;
-                transform: translate(${player.pixelX}px, ${player.pixelY}px);
-                z-index: 10;
-                transition: transform 0.2s ease;
-            `,
-            'data-pixel-x': player.pixelX,
-            'data-pixel-y': player.pixelY,
-            'data-grid-r': player.r,
-            'data-grid-c': player.c,
-            'data-username': player.username,
-            onkeydown: isCurrentUser ? (e) => {
-                e.preventDefault();
-                handlemoveplayer(e, globalUsername, player.pixelX, player.pixelY);
-            } : null,
-            tabindex: isCurrentUser ? 0 : -1,
-            id: `player-controlled-${player.username}`,
-        });
-
-        playerElements.push(playerElement);
+    const playerElement = h("div", {
+        class: `player-absolute ${player.direction}${hasBomb ? ' has-bomb' : ''}${isDamaged ? ' damaged' : ''}`,
+        style: `
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            transform: translate(${player.pixelX}px, ${player.pixelY}px);
+            z-index: 10;
+            transition: transform 0.2s ease;
+        `,
+        'data-pixel-x': player.pixelX,
+        'data-pixel-y': player.pixelY,
+        'data-grid-r': player.r,
+        'data-grid-c': player.c,
+        'data-username': player.username,
+        'data-damaged': isDamaged,
+        onkeydown: isCurrentUser ? (e) => {
+            e.preventDefault();
+            handlemoveplayer(e, globalUsername, player.pixelX, player.pixelY);
+        } : null,
+        tabindex: isCurrentUser ? 0 : -1,
+        id: `player-controlled-${player.username}`,
     });
+
+    playerElements.push(playerElement);
+});
 
     const mapContainer = h("div", {
       id: "map",

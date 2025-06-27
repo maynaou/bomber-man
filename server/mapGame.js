@@ -33,7 +33,8 @@ export class GenerateMapGame {
                 pixelY: cornerPositions[index].r * 40,
                 direction: 'front',
                 isAlive: true,
-                lastBombCell: null
+                lastBombCell: null,
+                isDamaged : false
             };
         });
     }
@@ -85,8 +86,6 @@ export class GenerateMapGame {
             if (!hasBomb) {
 
                 const place_bombs = this.activeBombs.find(bomb => bomb.playerId === playerId);
-
-                console.log(this.activeBombs);
                 
 
                 return {
@@ -248,7 +247,7 @@ export class GenerateMapGame {
                 });
                 this.explodeBomb(gridR, gridC, playerId);
 
-                //this.handleExplosionDamage(r,c)
+                this.handleExplosionDamage(gridR,gridC)
                 this.room.handleBombExplosion()
             }, 4000);
 
@@ -263,7 +262,7 @@ export class GenerateMapGame {
 
     }
 
-    /* handleExplosionDamage(bombR, bombC) {
+     handleExplosionDamage(bombR, bombC) {
      // Check if any player is at the bomb location
      this.checkPlayerDamage(bombR, bombC);
 
@@ -299,34 +298,38 @@ export class GenerateMapGame {
 
  // NEW METHOD: Handle player damage
  damagePlayer(playerId) {
-     const player = this.playerPositions.find(p => p.id === playerId);
-     if (!player || !player.isAlive) return;
+    const player = this.playerPositions.find(p => p.id === playerId);
+    if (!player || !player.isAlive) return;
 
-     this.playerclass.lives--;
-     console.log(`Player ${player.username} hit! Lives remaining: ${this.playerclass.lives}`);
+    this.playerclass.lives--;
+    console.log(`Player ${player.username} hit! Lives remaining: ${this.playerclass.lives}`);
 
-     // Broadcast life update to all clients
-     // this.room.broadcast({
-     //     type: 'player_life_updated',
-     //     playerId: playerId,
-     //     username: player.username,
-     //     lives: player.lives
-     // });
+    // ✅ AJOUT: Marquer le joueur comme endommagé
+    player.isDamaged = true;
+    
+    // ✅ AJOUT: Retirer l'état de dégât après l'animation
+    setTimeout(() => {
+        player.isDamaged = false;
+        // Broadcast pour mettre à jour l'affichage
+        this.room.broadcast({
+            type: 'player_damage_end',
+            playerId: playerId,
+            username: player.username,
+            playerPositions: this.playerPositions,
+            mapData :this.mapData
+        });
+    }, 1500); // Animation de 1.5 secondes
 
-     // if (player.lives <= 0) {
-     //     player.isAlive = false;
-     //     console.log(`Player ${player.username} eliminated!`);
-         
-     //     // Broadcast player elimination
-     //     this.room.broadcast({
-     //         type: 'player_eliminated',
-     //         playerId: playerId,
-     //         username: player.username
-     //     });
-
-     //     // Check if game should end
-     //     this.checkGameEnd();
-     }*/
+    // Broadcast immediate damage
+    this.room.broadcast({
+        type: 'player_damaged',
+        playerId: playerId,
+        username: player.username,
+        lives: this.playerclass.lives,
+        playerPositions: this.playerPositions,
+        mapData: this.mapData
+    });
+}
 
     explodeBomb(r, c, playerId) {
         this.activeBombs = this.activeBombs.filter(b => !(b.r === r && b.c === c));
