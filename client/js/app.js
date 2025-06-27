@@ -73,7 +73,7 @@ export function App(gameState, players = [], seconds = {}) {
     // Créer les éléments joueurs avec positionnement absolu
     playerPositions.forEach(player => {
 
-       console.log(player.pixelX,player.pixelY);
+      //  console.log(player.pixelX,player.pixelY);
        
         const isCurrentUser = player.username === globalUsername;
         const hasBomb = activeBombs.some(bomb => 
@@ -81,7 +81,7 @@ export function App(gameState, players = [], seconds = {}) {
             bomb.c === Math.floor(player.pixelX / 40)
         );
 
-        console.log("hasbomb : ", hasBomb);
+        // console.log("hasbomb : ", hasBomb);
         
 
         const playerElement = h("div", {
@@ -133,7 +133,7 @@ export function App(gameState, players = [], seconds = {}) {
       const currentPlayer = document.getElementById(`player-controlled-${globalUsername}`);
       if (currentPlayer) {
         currentPlayer.focus();
-        console.log("Focused on current player:", globalUsername);
+        // console.log("Focused on current player:", globalUsername);
       }
     }, 0);
 

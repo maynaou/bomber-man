@@ -61,10 +61,6 @@ function handleMessage(message) {
             case 'bomb_exploded' : 
                 removeBombFromMap(message.r, message.c);
             break;
-        case 'player_moved':            
-            // ✅ NOUVEAU: Gérer la mise à jour des positions en pixels
-            updatePlayerPosition(message.username, message.pixelX, message.pixelY, message.direction);
-            break;
         case 'place_bombs':
             renderBomb(message.username,message.pixelX,message.pixelY)
             //updateBombsPosition(message.username,message.pixelX,message.pixelY,message.direction);
@@ -94,31 +90,6 @@ function removeBombFromMap(r, c) {
             bomb.remove(); // 💥 supprime visuellement
         }
     });
-}
-
-
-function updatePlayerPosition(username, pixelX, pixelY, direction) {
-        let playerElement = document.getElementById(`player-controlled-${username}`);
-    
-    if (!playerElement) {
-        playerElement = document.querySelector(`[data-pixel-x="${pixelX}"][data-pixel-y="${pixelY}"]`);
-    }
-    
-    if (playerElement) {
-        playerElement.style.transform = `translate(${pixelX}px, ${pixelY}px)`;
-        
-        playerElement.dataset.pixelX = pixelX;
-        playerElement.dataset.pixelY = pixelY;
-        
-        playerElement.className = playerElement.className.replace(/\b(front|back|left|right)\b/g, '');
-        playerElement.classList.add(direction);
-        
-        if (playerElement.id === `player-controlled-${username}`) {
-            setTimeout(() => {
-                playerElement.focus();
-            }, 0);
-        }
-    }
 }
 
 function renderBomb(username,pixelX, pixelY) {

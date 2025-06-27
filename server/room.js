@@ -7,14 +7,15 @@ export class Room {
         this.waitingTimer = null;
         this.countdownTimer = null;
         this.gameMap = null
+        this.player = null
 
     }
     addPlayer(username, ws) {
         // console.log(username);
 
         const generateId = this.generatePlayerId()
-        const palyer = new Player(generateId, ws, username)
-        this.players.set(generateId, palyer)
+        this.player = new Player(generateId, ws, username)
+        this.players.set(generateId, this.player)
         this.palyerJoin()
 
         this.broadcast({
@@ -104,9 +105,9 @@ export class Room {
     startGame() {
         this.gameState = 'playing';
         const playerIds = Array.from(this.players.keys());
-        this.gameMap = new GenerateMapGame(13, 15, playerIds, this, Array.from(this.players.values()));
+        this.gameMap = new GenerateMapGame(13, 15, playerIds, this, Array.from(this.players.values()),this.player);
         const mapData = this.gameMap.mapData;
-        console.log(this.gameMap.playerPositions);
+        // console.log(this.gameMap.playerPositions);
 
         this.broadcast({
             type: 'game_start',
@@ -180,7 +181,7 @@ export class Room {
     }
 
     handleBombExplosion() {
-        this.gameMap.updateMapData();
+        //this.gameMap.updateMapData();
         this.broadcast({
             type: 'game_start',
             players: Array.from(this.players.values()).map(p => ({

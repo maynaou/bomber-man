@@ -1,7 +1,8 @@
 export class GenerateMapGame {
-    constructor(rows, cols, playerIds, room, players) {
+    constructor(rows, cols, playerIds, room, players,playerclass) {
         this.rows = rows;
         this.cols = cols;
+        this.playerclass = playerclass
         this.players = players
         this.playerIds = playerIds;
         this.playerPositions = this.generatePlayerPositions();
@@ -34,6 +35,7 @@ export class GenerateMapGame {
                 pixelX: cornerPositions[index].c * 40, // Position en pixels X
                 pixelY: cornerPositions[index].r * 40, // Position en pixels Y
                 direction: 'front',
+                isAlive : true,
                 lastBombCell: null
             };
         });
@@ -46,8 +48,6 @@ export class GenerateMapGame {
             const row = [];
             for (let c = 0; c < this.cols; c++) {
                 let cellType = 'empty';
-                //const playerHere = this.playerPositions.find(p => p.r === r && p.c === c);
-
                 if (r === 0 || r === this.rows - 1 || c === 0 || c === this.cols - 1) {
                     cellType = 'wall';
                 }
@@ -158,9 +158,6 @@ export class GenerateMapGame {
 
         return {
             success: true,
-            pixelX: newPixelX,
-            pixelY: newPixelY,
-            direction: player.direction,
             action: 'move'
         };
     }
@@ -238,24 +235,24 @@ updateBombGracePeriod(playerId) {
     if (!insideBombCell) {
         bomb.canPassThrough = false;
         player.lastBombCell = null;
-        console.log(`⛔️ Player ${playerId} moved off bomb cell completely, grace period ended`);
+        // console.log(`⛔️ Player ${playerId} moved off bomb cell completely, grace period ended`);
     }
 }
 
-updateMapData() {
-    // Nettoyer d'abord toutes les cellules joueurs
-    for (let r = 0; r < this.rows; r++) {
-        for (let c = 0; c < this.cols; c++) {
-            if (this.mapData[r][c].startsWith('player')) {
-                this.mapData[r][c] = 'empty';
-            }
-        }
-    }
+// updateMapData() {
+//     // Nettoyer d'abord toutes les cellules joueurs
+//     for (let r = 0; r < this.rows; r++) {
+//         for (let c = 0; c < this.cols; c++) {
+//             if (this.mapData[r][c].startsWith('player')) {
+//                 this.mapData[r][c] = 'empty';
+//             }
+//         }
+//     }
     
-    this.playerPositions.forEach(player => {
-        this.mapData[player.r][player.c] = `player ${player.username} ${player.direction}`;
-    });
-}
+//     this.playerPositions.forEach(player => {
+//         this.mapData[player.r][player.c] = `player ${player.username} ${player.direction}`;
+//     });
+// }
 
 
     placeBombs(r, c, currentPixelY, currentPixelX, playerId) {
@@ -276,12 +273,14 @@ updateMapData() {
                     r: currentPixelY,
                     c: currentPixelX,
                   });
-                this.explodeBomb(r, c);
+                this.explodeBomb(r, c,playerId);
+
+                this.handleExplosionDamage(r,c)
                 this.room.handleBombExplosion()
             }, 4000);
 
             setTimeout(() => {
-                this.explodeBomb(r, c);
+                this.explodeBomb(r, c,playerId);
                 this.room.handleBombExplosion()
             }, 4700);
 
@@ -291,15 +290,83 @@ updateMapData() {
 
     }
 
-    explodeBomb(r, c) {
+        handleExplosionDamage(bombR, bombC) {
+        // Check if any player is at the bomb location
+        this.checkPlayerDamage(bombR, bombC);
+
+        // Check explosion in all 4 directions
+        const directions = [
+            { dr: -1, dc: 0 }, // up
+            { dr: 1, dc: 0 },  // down
+            { dr: 0, dc: -1 }, // left
+            { dr: 0, dc: 1 }   // right
+        ];
+
+        for (const { dr, dc } of directions) {
+            const nr = bombR + dr;
+            const nc = bombC + dc;
+
+            if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+                this.checkPlayerDamage(nr, nc);
+            }
+        }
+    }
+
+    // NEW METHOD: Check if a player is at a specific grid position and damage them
+    checkPlayerDamage(gridR, gridC) {
+        this.playerPositions.forEach(player => {
+            if (!player.isAlive) return;
+
+            // Check if player's current grid position matches the explosion position
+            if (player.r === gridR && player.c === gridC) {
+                this.damagePlayer(player.id);
+            }
+        });
+    }
+
+    // NEW METHOD: Handle player damage
+    damagePlayer(playerId) {
+        const player = this.playerPositions.find(p => p.id === playerId);
+        if (!player || !player.isAlive) return;
+
+        this.playerclass.lives--;
+        console.log(`Player ${player.username} hit! Lives remaining: ${this.playerclass.lives}`);
+
+        // Broadcast life update to all clients
+        // this.room.broadcast({
+        //     type: 'player_life_updated',
+        //     playerId: playerId,
+        //     username: player.username,
+        //     lives: player.lives
+        // });
+
+        // if (player.lives <= 0) {
+        //     player.isAlive = false;
+        //     console.log(`Player ${player.username} eliminated!`);
+            
+        //     // Broadcast player elimination
+        //     this.room.broadcast({
+        //         type: 'player_eliminated',
+        //         playerId: playerId,
+        //         username: player.username
+        //     });
+
+        //     // Check if game should end
+        //     this.checkGameEnd();
+        }
+
+    explodeBomb(r, c,playerId) {
         this.activeBombs = this.activeBombs.filter(b => !(b.r === r && b.c === c));
+                     const player = this.playerPositions.find(p => p.id === playerId);
+       
+         //console.log("--------------------------------------------",this.mapData[r][c],this.mapData[player.r][player.c]);
 
         if (this.mapData[r][c] === 'cutted') {
             this.mapData[r][c] = 'empty';
-        } else {
+        } else if (this.mapData[r][c] === 'empty') {
             this.mapData[r][c] = 'cutted';
-        }
-
+        } 
+       
         const directions = [
             { dr: -1, dc: 0 }, // haut
             { dr: 1, dc: 0 },  // bas
@@ -323,4 +390,5 @@ updateMapData() {
             }
         }
     }
+   
 }
