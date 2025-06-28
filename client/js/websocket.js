@@ -71,7 +71,7 @@ function handleMessage(message) {
             renderAppFn(() => App("game_start", message.players || [], {
                 map: {
                     playerPositions: message.playerPositions,
-                    data:message.mapData
+                    data: message.mapData
                 }
             }), mount);
             setTimeout(() => {
@@ -86,7 +86,7 @@ function handleMessage(message) {
             renderAppFn(() => App("game_start", message.players || [], {
                 map: {
                     playerPositions: message.playerPositions,
-                     data:message.mapData
+                    data: message.mapData
                 }
             }), mount);
             setTimeout(() => {
@@ -96,6 +96,24 @@ function handleMessage(message) {
                 }
             }, 100);
             break;
+        case 'player_died':
+            renderAppFn(() => App("game_start", message.players || [], {
+                map: {
+                    playerPositions: message.playerPositions,
+                    data: message.mapData,
+                }
+            }), mount);
+            break
+
+
+        case 'player_eliminated':
+            renderAppFn(() => App("game_start", message.players || [], {
+                map: {
+                    playerPositions: message.playerPositions,
+                    data: message.mapData
+                }
+            }), mount);
+            break
         case 'error':
             console.error("Server error:", message.message);
             alert(`Erreur: ${message.message}`);

@@ -39,6 +39,16 @@ export function App(gameState, players = [], seconds = {}) {
          const hasBomb = activeBombs.some(bomb => bomb.r === r && bomb.c === c);
 
         switch (cellType) {
+          case 'speed' :
+              cellClass += ' speed';
+
+          break
+          case 'flame' :
+              cellClass += ' flame';
+          break
+          case 'powerUp' :
+              cellClass += ' powerUp';
+          break
           case 'wall':
             cellClass += ' wall';
             break;
@@ -80,6 +90,7 @@ export function App(gameState, players = [], seconds = {}) {
 
     // ✅ AJOUT: Vérifier si le joueur est endommagé
     const isDamaged = player.isDamaged || false;
+    const isAlive = player.isAlive !== false; // true par défaut
 
     const playerElement = h("div", {
         class: `player-absolute ${player.direction}${hasBomb ? ' has-bomb' : ''}${isDamaged ? ' damaged' : ''}`,
@@ -281,10 +292,11 @@ export function App(gameState, players = [], seconds = {}) {
 
     // Récupérer les données de la carte depuis le message
     const mapData = seconds.map?.data;
-    const rows = seconds.map?.rows || 13;
-    const cols = seconds.map?.cols || 15;
+    const rows = seconds.map?.rows || 17;
+    const cols = seconds.map?.cols || 21;
     const activeBombs = seconds.map?.activeBombs || [];
     const playerPositions = seconds.map?.playerPositions || [];
+    // const lives = seconds.map?.loves || 3;
     return h("div", { class: "game-container", onkeydown: (e) => { handlemoveplayer(e) } }, [
       mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs,playerPositions) : h("div", {}, "Chargement de la carte..."),
     ]);

@@ -105,7 +105,7 @@ export class Room {
     startGame() {
         this.gameState = 'playing';
         const playerIds = Array.from(this.players.keys());
-        this.gameMap = new GenerateMapGame(13, 15, playerIds, this, Array.from(this.players.values()),this.player);
+        this.gameMap = new GenerateMapGame(17, 21, playerIds, this, Array.from(this.players.values()),this.player);
         const mapData = this.gameMap.mapData;
         // console.log(this.gameMap.playerPositions);
 

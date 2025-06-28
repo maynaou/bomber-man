@@ -76,6 +76,22 @@ button:hover {
     background-image: url('destructible_wall.png');
 }
 
+.cell.speed {
+    background-image: url('speed.png');
+
+}
+
+.cell.powerUp {
+    background-image: url('bombPower.png');
+
+}
+
+.cell.flame {
+    background-image: url('flamebonus.png');
+
+}
+
+
 .cell.bombs {
     background-image: url('bomb.png');
     animation: bomb-blink 0.8s infinite;
