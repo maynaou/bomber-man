@@ -62,7 +62,9 @@ function handleMessage(message) {
             removeBombFromMap(message.r, message.c);
             break;
         case 'place_bombs':
+            console.log("-----------------------------------------------");
             renderBomb(message.username, message.pixelX, message.pixelY)
+            
             //updateBombsPosition(message.username,message.pixelX,message.pixelY,message.direction);
             break;
 

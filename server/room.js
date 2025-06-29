@@ -105,7 +105,7 @@ export class Room {
     startGame() {
         this.gameState = 'playing';
         const playerIds = Array.from(this.players.keys());
-        this.gameMap = new GenerateMapGame(17, 21, playerIds, this, Array.from(this.players.values()),this.player);
+        this.gameMap = new GenerateMapGame(17, 21, playerIds, this, Array.from(this.players.values()), this.player);
         const mapData = this.gameMap.mapData;
         // console.log(this.gameMap.playerPositions);
 
@@ -150,6 +150,7 @@ export class Room {
 
                 if (moveResult && moveResult.success) {
                     if (moveResult.action === 'bomb') {
+                        console.log("bomb placed in front !!")
                         // ✅ CORRECTION: Envoyer l'état complet de la carte quand une bombe est placée
                         this.broadcast({
                             type: 'place_bombs',
@@ -193,7 +194,7 @@ export class Room {
                 rows: this.gameMap.rows,
                 cols: this.gameMap.cols,
                 activeBombs: this.gameMap.activeBombs,
-                playerPositions : this.gameMap.playerPositions
+                playerPositions: this.gameMap.playerPositions
             }
         });
     }
