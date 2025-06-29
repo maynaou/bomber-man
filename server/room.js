@@ -138,48 +138,71 @@ export class Room {
         }
     }
 
-    handlePlayerMove(data) {
-        Array.from(this.players.values()).forEach((player) => {
-            if (data.username === player.username) {
-                const moveResult = this.gameMap.movePlayerByPixels(
-                    data.currentPixelX,
-                    data.currentPixelY,
-                    data.direction,
-                    player.id
-                );
+  // Dans room.js - Méthode handlePlayerMove corrigée
 
-                if (moveResult && moveResult.success) {
-                    if (moveResult.action === 'bomb') {
-                        console.log("bomb placed in front !!")
-                        // ✅ CORRECTION: Envoyer l'état complet de la carte quand une bombe est placée
-                        this.broadcast({
-                            type: 'place_bombs',
-                            playerId: player.id,
-                            username: player.username,
-                            pixelX: moveResult.pixelX,
-                            pixelY: moveResult.pixelY,
-                            direction: moveResult.direction,
-                            action: moveResult.action
-                        });
-                    } else {
-                        this.broadcast({
-                            type: 'game_start',
-                            players: Array.from(this.players.values()).map(p => ({
-                                id: p.id,
-                                username: p.username,
+handlePlayerMove(data) {
+    Array.from(this.players.values()).forEach((player) => {
+        if (data.username === player.username) {
+            const moveResult = this.gameMap.movePlayerByPixels(
+                data.currentPixelX,
+                data.currentPixelY,
+                data.direction,
+                player.id
+            );
+
+            if (moveResult && moveResult.success) {
+                if (moveResult.action === 'bomb') {
+                    console.log("bomb placed in front !!")
+                    // ✅ CORRECTION: Utiliser la liste complète des bombes actives
+                    this.broadcast({
+                        type: 'place_bombs',
+                        playerId: player.id,
+                        players: Array.from(this.players.values()).map(p => ({
+                            id: p.id,
+                            username: p.username,
+                        })),
+                        map: {
+                            data: moveResult.mapData,
+                            rows: this.gameMap.rows,
+                            cols: this.gameMap.cols,
+                            // ✅ UTILISER LA LISTE COMPLÈTE DES BOMBES ACTIVES
+                            activeBombs: this.gameMap.activeBombs.map(bomb => ({
+                                pixelX: bomb.pixelX,
+                                pixelY: bomb.pixelY,
+                                r: bomb.r,
+                                c: bomb.c,
+                                playerId: bomb.playerId
                             })),
-                            map: {
-                                data: this.gameMap.mapData,
-                                rows: this.gameMap.rows,
-                                cols: this.gameMap.cols,
-                                playerPositions: this.gameMap.playerPositions
-                            }
-                        });
-                    }
+                            playerPositions: moveResult.playerPositions
+                        }
+                    });
+                } else {
+                    // Pour les mouvements normaux
+                    this.broadcast({
+                        type: 'game_start',
+                        players: Array.from(this.players.values()).map(p => ({
+                            id: p.id,
+                            username: p.username,
+                        })),
+                        map: {
+                            data: this.gameMap.mapData,
+                            rows: this.gameMap.rows,
+                            cols: this.gameMap.cols,
+                            activeBombs: this.gameMap.activeBombs.map(bomb => ({
+                                pixelX: bomb.pixelX,
+                                pixelY: bomb.pixelY,
+                                r: bomb.r,
+                                c: bomb.c,
+                                playerId: bomb.playerId
+                            })),
+                            playerPositions: this.gameMap.playerPositions
+                        }
+                    });
                 }
             }
-        })
-    }
+        }
+    })
+}
 
     handleBombExplosion() {
         //this.gameMap.updateMapData();

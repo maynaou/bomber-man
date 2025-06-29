@@ -96,21 +96,25 @@ export class GenerateMapGame {
 
                 const playerBombs = this.activeBombs.filter(bomb => bomb.playerId === playerId);
                 const place_bombs = playerBombs[playerBombs.length - 1];
+
                 if (place_bombs) {
-                    let obj = {
+                    // console.log(this.mapData);
+
+                    return {
                         success: true,
                         // placed: true,
+                        playerPositions: this.playerPositions,
+                        mapData: this.mapData,
                         pixelX: place_bombs.pixelX,
                         pixelY: place_bombs.pixelY,
                         direction: player.direction,
                         action: 'bomb'
                     };
-                 return obj
                 }
 
                 // console.log(obj);
 
-               
+
             }
 
         }
@@ -280,8 +284,13 @@ export class GenerateMapGame {
                 setTimeout(() => {
                     this.room.broadcast({
                         type: 'bomb_exploded',
-                        r: gridR * this.cellSize, // Coordonnées en pixels pour l'affichage
-                        c: gridC * this.cellSize
+                        map: {
+                            data: this.mapData,
+                            rows: this.rows,
+                            cols: this.cols,
+                            activeBombs: this.activeBombs,
+                            playerPositions: this.playerPositions
+                        }
                     });
                     this.explodeBomb(gridR, gridC, playerId);
                     //this.activeBombs.slice(-1)
@@ -450,6 +459,10 @@ export class GenerateMapGame {
 
     explodeBomb(r, c, playerId) {
         this.activeBombs = this.activeBombs.filter(b => !(b.r === r && b.c === c));
+
+        console.log("active : ", this.activeBombs);
+
+
         const player = this.playerPositions.find(p => p.id === playerId);
 
         // Fonction pour générer un bonus aléatoire

@@ -23,6 +23,7 @@ export function App(gameState, players = [], seconds = {}) {
   function createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs = [], playerPositions = []) {
     const mapCells = [];
     const playerElements = [];
+    const bombElements = []
 
     // Créer d'abord toutes les cellules de base (murs, blocs, bombes)
     for (let r = 0; r < rows; r++) {
@@ -36,7 +37,7 @@ export function App(gameState, players = [], seconds = {}) {
         }*/
 
         // Vérifier s'il y a une bombe à cette position
-         const hasBomb = activeBombs.some(bomb => bomb.r === r && bomb.c === c);
+        //  const hasBomb = activeBombs.some(bomb => bomb.r === r && bomb.c === c);
 
         switch (cellType) {
           case 'speed' :
@@ -52,9 +53,6 @@ export function App(gameState, players = [], seconds = {}) {
           case 'wall':
             cellClass += ' wall';
             break;
-          case 'bombs':
-            cellClass += ' bombs';
-            break;
           case 'block':
             cellClass += ' block';
             break;
@@ -63,9 +61,7 @@ export function App(gameState, players = [], seconds = {}) {
             break;
           case 'empty':
           default:
-            if (hasBomb) {
-              cellClass += ' bombs';
-            }
+           
             break;
         }
 
@@ -79,21 +75,39 @@ export function App(gameState, players = [], seconds = {}) {
       }
     }
    // console.log("username : ", username);
+  activeBombs.forEach(bomb => {
+        const bombElement = h("div", {
+            class: "bomb-absolute blink",
+            id: `${bomb.playerId}`,
+            style: `
+                position: absolute;
+                width: 40px;
+                height: 40px;
+                transform: translate(${bomb.pixelX}px, ${bomb.pixelY}px);
+                z-index: 8;
+                background-image: url('bomb.png');
+                background-size: cover;
+            `,
+            'data-pixel-x': bomb.pixelX,
+            'data-pixel-y': bomb.pixelY,
+        });
 
+        bombElements.push(bombElement);
+    });
     // Créer les éléments joueurs avec positionnement absolu
    playerPositions.forEach(player => {
     const isCurrentUser = player.username === globalUsername;
-    const hasBomb = activeBombs.some(bomb => 
-        bomb.r === Math.floor(player.pixelY / 40) && 
-        bomb.c === Math.floor(player.pixelX / 40)
-    );
+    // const hasBomb = activeBombs.some(bomb => 
+    //     bomb.r === Math.floor(player.pixelY / 40) && 
+    //     bomb.c === Math.floor(player.pixelX / 40)
+    // );
 
     // ✅ AJOUT: Vérifier si le joueur est endommagé
     const isDamaged = player.isDamaged || false;
     const isAlive = player.isAlive !== false; // true par défaut
 
     const playerElement = h("div", {
-        class: `player-absolute ${player.direction}${hasBomb ? ' has-bomb' : ''}${isDamaged ? ' damaged' : ''}`,
+        class: `player-absolute ${player.direction}${isDamaged ? ' damaged' : ''}`,
         style: `
             position: absolute;
             width: 40px;
@@ -136,7 +150,7 @@ export function App(gameState, players = [], seconds = {}) {
           setTimeout(() => currentPlayer.focus(), 0);
         }
       }
-    }, [...mapCells, ...playerElements]);
+    }, [...mapCells,...playerElements,...bombElements]);
 
    setTimeout(() => {
       const currentPlayer = document.getElementById(`player-controlled-${globalUsername}`);
@@ -301,6 +315,7 @@ export function App(gameState, players = [], seconds = {}) {
       mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs,playerPositions) : h("div", {}, "Chargement de la carte..."),
     ]);
   }
+  
 
   // Default fallback
   return h("div", { class: "container" }, [

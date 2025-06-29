@@ -23,7 +23,7 @@ export function createElement(vnode) {
       el[`on${eventName}`] = value;
     } else if (key === "value" && (vnode.tag === "input" || vnode.tag === "textarea")) {
       el.value = value;
-    } else {
+    } else{
       el.setAttribute(key, value);
     }
   }
