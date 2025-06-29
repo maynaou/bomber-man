@@ -267,7 +267,7 @@ export class GenerateMapGame {
                 });
                 this.explodeBomb(gridR, gridC, playerId);
 
-                this.handleExplosionDamage(gridR, gridC)
+                this.handleExplosionDamage(gridR, gridC,playerId)
                 this.room.handleBombExplosion()
             }, 4000);
 
@@ -282,27 +282,46 @@ export class GenerateMapGame {
 
     }
 
-    handleExplosionDamage(bombR, bombC) {
-        // Check if any player is at the bomb location
-        this.checkPlayerDamage(bombR, bombC);
+  
+handleExplosionDamage(bombR, bombC, playerId) {
+    const bomberPlayer = this.playerPositions.find(p => p.id === playerId);
+    const flameRange = bomberPlayer ? bomberPlayer.stats.flameRange : 1;
 
-        // Check explosion in all 4 directions
-        const directions = [
-            { dr: -1, dc: 0 }, // up
-            { dr: 1, dc: 0 },  // down
-            { dr: 0, dc: -1 }, // left
-            { dr: 0, dc: 1 }   // right
-        ];
+    // Check if any player is at the bomb location
+    this.checkPlayerDamage(bombR, bombC);
 
-        for (const { dr, dc } of directions) {
-            const nr = bombR + dr;
-            const nc = bombC + dc;
+    // Check explosion in all 4 directions avec la portée de flamme
+    const directions = [
+        { dr: -1, dc: 0 }, // up
+        { dr: 1, dc: 0 },  // down
+        { dr: 0, dc: -1 }, // left
+        { dr: 0, dc: 1 }   // right
+    ];
+
+    for (const { dr, dc } of directions) {
+        for (let step = 1; step <= flameRange; step++) {
+            const nr = bombR + (dr * step);
+            const nc = bombC + (dc * step);
 
             if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+                const cellType = this.mapData[nr][nc];
+                
+                // Vérifier les dégâts aux joueurs
                 this.checkPlayerDamage(nr, nc);
+                
+                // Arrêter la propagation si on hit un mur ou un bloc
+                if (cellType === 'wall') {
+                    break;
+                }
+                if (cellType === 'block') {
+                    break; // Les blocs arrêtent la propagation après avoir été touchés
+                }
+            } else {
+                break; // Sortie de la carte
             }
         }
     }
+}
 
     // NEW METHOD: Check if a player is at a specific grid position and damage them
     checkPlayerDamage(gridR, gridC) {
@@ -325,17 +344,17 @@ export class GenerateMapGame {
 
         // console.log(this.playerclass.lives);
 
-        console.log(`Player ${player.username}`);
+        //console.log(`Player ${player.username}`);
         this.playerclass.loseLife(playerId)
         const isAlive = getplayer.lives > 1 ? true : false
         player.isAlive = isAlive
 
         // console.log(getplayer.lives ,player.isAlive);
-        console.log("player isAlive : ", isAlive);
+        //console.log("player isAlive : ", isAlive);
 
         if (!isAlive) {
             // Le joueur est mort, le marquer comme tel
-            console.log('--------------------------------------------');
+            //console.log('--------------------------------------------');
             player.isDamaged = true
             // Broadcast la mort du joueur
             this.room.broadcast({
@@ -434,13 +453,15 @@ export class GenerateMapGame {
             { dr: 0, dc: -1 }, // gauche
             { dr: 0, dc: 1 }   // droite
         ];
+        
 
 
         for (const { dr, dc } of directions) {
-            for (let step = 0; step <= player.stats.flameRange; step++) {
-                const nr = r + dr * step;
-                const nc = c + dc * step;
-
+            for (let step = 1; step <= player.stats.flameRange; step++) {
+                const nr = r + (dr * step);
+                const nc = c + (dc * step);
+                const hasBonus = this.bonuses ? this.bonuses.find(b => b.r === nr && b.c === nc) : null;
+                
 
                 if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
                     const target = this.mapData[nr][nc];
@@ -456,21 +477,31 @@ export class GenerateMapGame {
                             r: nr,
                             c: nc,
                             type: bonus,
-                            timestamp: Date.now()
+                            timestamp: Date.now(),
+                            shouldRestore: true
                         });
 
                         this.mapData[nr][nc] = 'cutted';
                     } else if (target === 'empty') {
                         this.mapData[nr][nc] = 'cutted';
+                    } else if (['flame'].includes(target) && !hasBonus.shouldRestore) {
+                        // Si c'est déjà un bonus, le laisser tel quel mais passer à cutted temporairement
+                        this.mapData[nr][nc] = 'cutted';
+                        // Marquer que ce bonus doit être restauré
+                        if (hasBonus) {
+                            hasBonus.shouldRestore = true;
+                        }
                     } else if (target === 'cutted') {
-                        const hasBonus = this.bonuses?.find(b => b.r === nr && b.c === nc);
+                        // const hasBonus = this.bonuses?.find(b => b.r === nr && b.c === nc);
 
-                        if (hasBonus && hasBonus.type !== undefined) {
+                        if (hasBonus && hasBonus.shouldRestore) {
                             this.mapData[nr][nc] = hasBonus.type;
+                            hasBonus.shouldRestore = false;
                         } else {
                             this.mapData[nr][nc] = 'empty';
-
                         }
+                    }else {
+                         this.mapData[nr][nc] = 'cutted';
                     }
                     // Les bonus existants ne sont pas affectés par l'explosion
                 }
