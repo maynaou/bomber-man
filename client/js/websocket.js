@@ -50,80 +50,14 @@ function handleMessage(message) {
             break;
         case 'game_start':
             renderAppFn(() => App("game_start", message.players, message), mount);
-            // ✅ CORRECTION: Restaurer le focus après le re-render
-            setTimeout(() => {
+            // ✅ CORRECTION: Restaurer le focus après le re-
+              setTimeout(() => {
                 const player = document.getElementById(`player-controlled-${currentUsername}`);
                 if (player) {
                     player.focus();
                 }
             }, 100);
             break;
-        case 'bomb_exploded':
-            // removeBombFromMap(message.r, message.c);
-            renderAppFn(() => App("game_start", message.players || [] , message), mount);
-            break;
-        case 'place_bombs':
-
-            // const newBombs = {
-            //     pixelX : message.pixelX,
-            //     pixelY : message.pixelY,
-            //     username : message.username
-            // }
-            console.log("-----------------------------------------------");
-            // renderBomb(message.username, message.pixelX, message.pixelY)
-            renderAppFn(() => App("game_start", message.players || [] , message), mount);
-
-            //updateBombsPosition(message.username,message.pixelX,message.pixelY,message.direction);
-            break;
-
-        case 'player_damaged':
-            // Re-render pour afficher l'animation de dégâts
-            renderAppFn(() => App("game_start", message.players || [], {
-                map: {
-                    playerPositions: message.playerPositions,
-                    data: message.mapData
-                }
-            }), mount);
-            setTimeout(() => {
-                const player = document.getElementById(`player-controlled-${currentUsername}`);
-                if (player) {
-                    player.focus();
-                }
-            }, 100);
-            break;
-        case 'player_damage_end':
-            // Re-render pour retirer l'animation de dégâts
-            renderAppFn(() => App("game_start", message.players || [], {
-                map: {
-                    playerPositions: message.playerPositions,
-                    data: message.mapData
-                }
-            }), mount);
-            setTimeout(() => {
-                const player = document.getElementById(`player-controlled-${currentUsername}`);
-                if (player) {
-                    player.focus();
-                }
-            }, 100);
-            break;
-        case 'player_died':
-            renderAppFn(() => App("game_start", message.players || [], {
-                map: {
-                    playerPositions: message.playerPositions,
-                    data: message.mapData,
-                }
-            }), mount);
-            break
-
-
-        case 'player_eliminated':
-            renderAppFn(() => App("game_start", message.players || [], {
-                map: {
-                    playerPositions: message.playerPositions,
-                    data: message.mapData
-                }
-            }), mount);
-            break
         case 'error':
             console.error("Server error:", message.message);
             alert(`Erreur: ${message.message}`);
@@ -132,65 +66,3 @@ function handleMessage(message) {
             console.warn("Unknown message type:", message.type, "Full message:", message);
     }
 }
-
-
-// function removeBombFromMap(r, c) {
-//     console.log("**************************************");
-
-//     // Trouve la bombe par position
-//     const bombs = document.querySelectorAll('.bomb-absolute');
-//     console.log(bombs);
-//     bombs.forEach(bomb => {
-//         const bx = bomb.dataset.pixelX;
-//         const by = bomb.dataset.pixelY;
-
-//         if (bx === c && by === r)
-//             console.log("🧹 Removing bomb at", bx, by); {
-//             bomb.remove(); // 💥 supprime visuellement
-//         }
-//     });
-// }
-
-
-// function renderBomb(username, pixelX, pixelY) {
-//    const bombElement = h("div", {
-//             class: "bomb-absolute blink",
-//             id : `${username}`,
-//             style: `
-//                 position: absolute;
-//                 width: 40px;
-//                 height: 40px;
-//                 transform: translate(${pixelX}px, ${pixelY}px);
-//                 z-index: 8;
-//                 background-image: url('bomb.png');
-//                 background-size: cover;
-//             `,
-//             'data-pixel-x': pixelX,
-//             'data-pixel-y': pixelY,
-//         });
-
-//     document.getElementById("map")?.appendChild(bombElement);
-// }
-
-
-// function renderBomb(username, pixelX, pixelY) {
-//     const bombElement = document.createElement("div");
-//     bombElement.className = "bomb-absolute blink";
-//     bombElement.id = `${username}`
-//     bombElement.style.position = "absolute";
-//     bombElement.style.width = "40px";
-//     bombElement.style.height = "40px";
-//     bombElement.style.transform = `translate(${pixelX}px, ${pixelY}px)`;
-//     bombElement.style.zIndex = "8";
-//     bombElement.style.backgroundImage = "url('bomb.png')"; // 🔁 mets le bon chemin
-//     bombElement.style.backgroundSize = "cover";
-//     bombElement.dataset.pixelX = pixelX;
-//     bombElement.dataset.pixelY = pixelY;
-
-//     document.getElementById("map")?.appendChild(bombElement);
-
-//     // 💥 Explosion après 3 secondes (facultatif)
-// }
-
-
-

@@ -10,8 +10,8 @@ export class Room {
         this.player = null
 
     }
+
     addPlayer(username, ws) {
-        // console.log(username);
 
         const generateId = this.generatePlayerId()
         this.player = new Player(generateId, ws, username)
@@ -30,6 +30,7 @@ export class Room {
 
         return generateId;
     }
+    
     generatePlayerId() {
         return Math.random().toString(36).substr(2, 9);
     }
@@ -138,8 +139,6 @@ export class Room {
         }
     }
 
-  // Dans room.js - Méthode handlePlayerMove corrigée
-
 handlePlayerMove(data) {
     Array.from(this.players.values()).forEach((player) => {
         if (data.username === player.username) {
@@ -151,35 +150,11 @@ handlePlayerMove(data) {
             );
 
             if (moveResult && moveResult.success) {
-                if (moveResult.action === 'bomb') {
-                    console.log("bomb placed in front !!")
+                if (moveResult.action === 'bomb' || moveResult.action === 'move') {
                     // ✅ CORRECTION: Utiliser la liste complète des bombes actives
                     this.broadcast({
-                        type: 'place_bombs',
+                        type: moveResult.type,
                         playerId: player.id,
-                        players: Array.from(this.players.values()).map(p => ({
-                            id: p.id,
-                            username: p.username,
-                        })),
-                        map: {
-                            data: moveResult.mapData,
-                            rows: this.gameMap.rows,
-                            cols: this.gameMap.cols,
-                            // ✅ UTILISER LA LISTE COMPLÈTE DES BOMBES ACTIVES
-                            activeBombs: this.gameMap.activeBombs.map(bomb => ({
-                                pixelX: bomb.pixelX,
-                                pixelY: bomb.pixelY,
-                                r: bomb.r,
-                                c: bomb.c,
-                                playerId: bomb.playerId
-                            })),
-                            playerPositions: moveResult.playerPositions
-                        }
-                    });
-                } else {
-                    // Pour les mouvements normaux
-                    this.broadcast({
-                        type: 'game_start',
                         players: Array.from(this.players.values()).map(p => ({
                             id: p.id,
                             username: p.username,
@@ -188,24 +163,17 @@ handlePlayerMove(data) {
                             data: this.gameMap.mapData,
                             rows: this.gameMap.rows,
                             cols: this.gameMap.cols,
-                            activeBombs: this.gameMap.activeBombs.map(bomb => ({
-                                pixelX: bomb.pixelX,
-                                pixelY: bomb.pixelY,
-                                r: bomb.r,
-                                c: bomb.c,
-                                playerId: bomb.playerId
-                            })),
+                            activeBombs: this.gameMap.activeBombs,
                             playerPositions: this.gameMap.playerPositions
                         }
                     });
-                }
+                } 
             }
         }
     })
 }
 
-    handleBombExplosion() {
-        //this.gameMap.updateMapData();
+handleBombExplosion() {
         this.broadcast({
             type: 'game_start',
             players: Array.from(this.players.values()).map(p => ({
@@ -223,7 +191,6 @@ handlePlayerMove(data) {
     }
 
     broadcast(message) {
-
         const messageStr = JSON.stringify(message);
         this.players.forEach(player => {
             if (player.ws.readyState === 1) { // WebSocket.OPEN = 1

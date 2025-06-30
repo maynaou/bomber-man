@@ -31,14 +31,6 @@ export function App(gameState, players = [], seconds = {}) {
         let cellType = mapData[r][c];
         let cellClass = 'cell';
 
-        // Ignorer les joueurs pour les cellules de base
-        /*if (cellType.startsWith('player')) {
-          cellType = 'empty';
-        }*/
-
-        // Vérifier s'il y a une bombe à cette position
-        //  const hasBomb = activeBombs.some(bomb => bomb.r === r && bomb.c === c);
-
         switch (cellType) {
           case 'speed' :
               cellClass += ' speed';
@@ -97,10 +89,6 @@ export function App(gameState, players = [], seconds = {}) {
     // Créer les éléments joueurs avec positionnement absolu
    playerPositions.forEach(player => {
     const isCurrentUser = player.username === globalUsername;
-    // const hasBomb = activeBombs.some(bomb => 
-    //     bomb.r === Math.floor(player.pixelY / 40) && 
-    //     bomb.c === Math.floor(player.pixelX / 40)
-    // );
 
     // ✅ AJOUT: Vérifier si le joueur est endommagé
     const isDamaged = player.isDamaged || false;
@@ -110,8 +98,8 @@ export function App(gameState, players = [], seconds = {}) {
         class: `player-absolute ${player.direction}${isDamaged ? ' damaged' : ''}`,
         style: `
             position: absolute;
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             transform: translate(${player.pixelX}px, ${player.pixelY}px);
             z-index: 10;
             transition: transform 0.2s ease;
