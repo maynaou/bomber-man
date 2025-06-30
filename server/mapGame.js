@@ -38,7 +38,7 @@ export class GenerateMapGame {
                 isAlive: true,
                 isDamaged: false,
                 stats: {
-                    speed: 15,
+                    speed: 4,
                     flameRange: 1,
                     maxBombs: 1
                 }
@@ -104,7 +104,7 @@ export class GenerateMapGame {
     
         // const baseSpeed = 4; // Vitesse de base en pixels par frame
         // const speedMultiplier = player.stats.speed / 15; // Normaliser par rapport à la vitesse de base
-        const moveSpeed = 8
+        const moveSpeed = player.stats.speed
         let newPixelX = currentPixelX;
         let newPixelY = currentPixelY;
 
@@ -451,7 +451,7 @@ export class GenerateMapGame {
                 // Appliquer l'effet du bonus
                 switch (bonusType) {
                     case 'speed':
-                        player.stats.speed = Math.min(player.stats.speed + 1, 8); // Incréments de 3
+                        player.stats.speed = Math.min(player.stats.speed + 2, 8); // Incréments de 3
                         break;
                     case 'flame':
                         player.stats.flameRange = Math.min(player.stats.flameRange + 1, 4); // Max 8
