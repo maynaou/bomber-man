@@ -51,7 +51,7 @@ button:hover {
     display: grid;
     gap: 0;
     border: 3px solid #666;
-    background-image: url('floor.png');
+    background-image: url('empty.webp');
     background-size: 40px 40px;
     background-repeat: repeat;
     position: relative; /* Important pour le positionnement absolu des joueurs */
@@ -69,11 +69,11 @@ button:hover {
 
 /* Styles pour les différents éléments */
 .cell.wall {
-    background-image: url('wall.png');
+    background-image: url('wall.webp');
 }
 
 .cell.block {
-    background-image: url('destructible_wall.png');
+    background-image: url('block.webp');
 }
 
 .cell.speed {
@@ -246,6 +246,62 @@ button:hover {
     0%, 50% { opacity: 1; }
     51%, 100% { opacity: 0.5; }
 }
+
+.chat-container {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 300px;
+    background: #2d2d2d;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.chat-messages {
+    background-color: #1f1f1f;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 10px;
+    height: 200px;
+    overflow-y: auto;
+    color: #ddd;
+    font-size: 14px;
+}
+
+.chat-input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    width: 100%;
+    background-color: #1a1a1a;
+    color: white;
+}
+
+.chat-input::placeholder {
+    color: #aaa;
+}
+
+.chat-button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    align-self: flex-end;
+}
+
+.chat-button:hover {
+    background-color: #e55a2b;
+}
+
 
 
 

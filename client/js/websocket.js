@@ -2,6 +2,10 @@
 
 import { App } from "./app.js"
 import { renderAppFn } from "../framework/state.js";
+import { elementRef, createElement, h } from "../framework/dom.js";
+
+export let historychat = [];
+
 let socket;
 let currentUsername = null;
 export function connectToWebSocket(username) {
@@ -58,6 +62,21 @@ function handleMessage(message) {
                 }
             }, 100);
             break;
+        case 'chat':
+        historychat.push(message)
+            elementRef.refchat.ref.appendChild(
+                createElement(h("div", { class: "chat-message" }, message.username, ": ", message.message))
+            )
+            break;
+        case 'chat_history':
+            for (const chat of message.history) {
+                historychat.push(chat)
+                elementRef.refchat.ref.appendChild(
+                    createElement(h("div", { class: "chat-message" }, chat.username, ": ", chat.message))
+                )
+            }
+            elementRef.refchat.ref
+            break
         case 'error':
             console.error("Server error:", message.message);
             alert(`Erreur: ${message.message}`);
@@ -65,4 +84,13 @@ function handleMessage(message) {
         default:
             console.warn("Unknown message type:", message.type, "Full message:", message);
     }
+}
+
+export function handlechat(username, message) {
+    console.log("Sending chat message:", message);
+    socket.send(JSON.stringify({
+        type: 'chat',
+        username: username,
+        message: message
+    }));
 }

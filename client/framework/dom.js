@@ -10,6 +10,9 @@ export function h(tag, attrs = {}, ...children) {
   };
 }
 
+export let elementRef = {
+  refchat: {ref: null}, 
+}
 export function createElement(vnode) {
   if (vnode.tag === "text") {
     return document.createTextNode(vnode.text);
@@ -23,7 +26,9 @@ export function createElement(vnode) {
       el[`on${eventName}`] = value;
     } else if (key === "value" && (vnode.tag === "input" || vnode.tag === "textarea")) {
       el.value = value;
-    } else{
+    } else if  (key == "ref" && typeof value === "object") {
+      value.ref = el;
+    } else {
       el.setAttribute(key, value);
     }
   }

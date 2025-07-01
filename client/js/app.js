@@ -1,14 +1,15 @@
 // app.js
 // import { request } from "undici-types";
 import { useState } from "../framework/state.js";
-import { h } from "../framework/dom.js";
+import { h,elementRef } from "../framework/dom.js";
 import { renderAppFn } from "../framework/state.js";
-import { connectToWebSocket, handlemoveplayer } from "./websocket.js"
+import { connectToWebSocket, handlemoveplayer, handlechat, historychat } from "./websocket.js"
 
 let globalUsername = null; // ✅ AJOUT: Variable globale pour le nom d'utilisateur
 
 export function App(gameState, players = [], seconds = {}) {
 
+const [chatMessages, setChatMessages] = useState("");
 
   const [username, setUsername] = useState("");
   function handleJoinGame(username) {
@@ -19,6 +20,31 @@ export function App(gameState, players = [], seconds = {}) {
       alert("Veuillez entrer un pseudo valide!");
     }
   }
+
+  function chat(){
+  return h("div", { class: "chat-container" },
+    [h("div", {class: "chat-messages", ref: elementRef.refchat}, historychat.map(chat => h("div", { class: "chat-message" }, chat.username, ": ", chat.message))),
+      h("input", {
+        class: "chat-input",
+        placeholder: "Entrez votre message...",  
+        // value: chatMessages,
+          onInput: (e) => {
+            setChatMessages(e.target.value);
+          },
+          onKeyPress: (e) => {
+            if (e.key === 'Enter') {
+              e.target.value = "";              
+               handlechat(username, chatMessages);
+               setChatMessages("");
+            }
+          }
+           }),
+      h("button", {class: "chat-button", onclick: () => {
+      handlechat(username, chatMessages);
+      setChatMessages("");
+      }}, "Envoyer")
+    ]);
+}
 
   function createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs = [], playerPositions = []) {
     const mapCells = [];
@@ -253,7 +279,9 @@ export function App(gameState, players = [], seconds = {}) {
               : "En attente de plus de joueurs ou fin du timer..."
           )
         ])
-      ])
+      ]),
+       chat()
+
     ]);
   }
 
@@ -285,7 +313,9 @@ export function App(gameState, players = [], seconds = {}) {
             })
           )
         ])
-      ])
+      ]),
+      chat()
+
     ]);
   }
 
@@ -301,6 +331,7 @@ export function App(gameState, players = [], seconds = {}) {
     // const lives = seconds.map?.loves || 3;
     return h("div", { class: "game-container", onkeydown: (e) => { handlemoveplayer(e) } }, [
       mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs,playerPositions) : h("div", {}, "Chargement de la carte..."),
+      chat()
     ]);
   }
   

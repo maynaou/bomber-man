@@ -102,8 +102,6 @@ export class GenerateMapGame {
             }
         }
     
-        // const baseSpeed = 4; // Vitesse de base en pixels par frame
-        // const speedMultiplier = player.stats.speed / 15; // Normaliser par rapport à la vitesse de base
         const moveSpeed = player.stats.speed
         let newPixelX = currentPixelX;
         let newPixelY = currentPixelY;
@@ -387,6 +385,8 @@ export class GenerateMapGame {
 
                 if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
                     const target = this.mapData[nr][nc];
+
+         
                     if (target === 'wall') break
                     if (target === 'block') {
                         const bonus = generateRandomBonus();
@@ -442,6 +442,18 @@ export class GenerateMapGame {
     // Fonction pour collecter un bonus quand un joueur marche dessus
     collectBonus(r, c) {
         const bonusType = this.mapData[r][c];
+
+            // const playerCenterX = this.player.pixelX + 30; // Centre du joueur (40px/2)
+            // const playerCenterY = this.player.pixelY + 30;
+            // // Position de grille la plus proche du centre du joueur
+            // const gridR = Math.floor(playerCenterY / this.cellSize);
+            // const gridC = Math.floor(playerCenterX / this.cellSize);
+
+            // if (gridC !== c || gridR !== r) {
+            //     console.log("-------------------------------------");
+                
+            //     return 
+            // }
 
         if (['speed', 'flame', 'powerUp'].includes(bonusType)) {
             const player = this.playerPositions.find(p => p.id === this.player.id);

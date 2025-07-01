@@ -34,6 +34,9 @@ wss.on('connection', (ws) => {
                     
                 room.handlePlayerMove(data); // direction = 'up', 'down' etc.
                   break
+                 case 'chat':
+                    room.handleChat(data);
+                    break;   
             }
         } catch (error) {
             console.error('Erreur parsing message:', error);

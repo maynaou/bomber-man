@@ -7,6 +7,7 @@ export class Room {
         this.waitingTimer = null;
         this.countdownTimer = null;
         this.gameMap = null
+        this.chathistory = [];
         this.player = null
 
     }
@@ -204,5 +205,24 @@ handleBombExplosion() {
 
         });
 
+    }
+
+    handleChat(data) {
+        this.chathistory.push({
+            username: data.username,
+            message: data.message
+        });
+        this.broadcast({
+            type: 'chat',
+            username: data.username,
+            message: data.message
+        });
+    }
+    
+    broadcastChatHistory() {
+        this.broadcast({
+            type: 'chat_history',
+            history: this.chathistory
+        });
     }
 }
