@@ -21,6 +21,53 @@ const [chatMessages, setChatMessages] = useState("");
     }
   }
 
+ function playerssidebar(playerPositions = []) {
+    return h("div", { class: "sidebar" }, [
+      h("h3", { class: "sidebar-title" }, "🎮 Joueurs"),
+      h("div", { class: "players-stats" },
+        playerPositions.map(player => {
+          const isCurrentUser = player.username === globalUsername;
+          const isAlive = player.isAlive !== false;
+          
+          return h("div", { 
+            class: `player-stat ${isCurrentUser ? 'current-player' : ''} ${!isAlive ? 'dead-player' : ''}` 
+          }, [
+            h("div", { class: "player-header" }, [
+              h("span", { class: "player-name" }, player.username || "Joueur"),
+              h("span", { class: "player-status" }, isCurrentUser ? "👤" : (isAlive ? "✅" : "💀"))
+            ]),
+            
+            h("div", { class: "player-stats-grid" }, [
+              h("div", { class: "stat-item" }, [
+                h("span", { class: "stat-icon" }, "❤️"),
+                h("span", { class: "stat-label" }, "lives:"),
+                h("span", { class: "stat-value" }, `${player.stats.lives}`)
+              ]),
+              
+              h("div", { class: "stat-item" }, [
+                h("span", { class: "stat-icon" }, "🏃"),
+                h("span", { class: "stat-label" }, "Vitesse:"),
+                h("span", { class: "stat-value" }, `${player.stats.speed}`)
+              ]),
+              
+              h("div", { class: "stat-item" }, [
+                h("span", { class: "stat-icon" }, "💥"),
+                h("span", { class: "stat-label" }, "Flames:"),
+                h("span", { class: "stat-value" }, `${player.stats.flameRange}`)
+              ]),
+              
+              h("div", { class: "stat-item" }, [
+                h("span", { class: "stat-icon" }, "💣"),
+                h("span", { class: "stat-label" }, "Power-ups:"),
+                h("span", { class: "stat-value" }, `${player.stats.maxBombs}`)
+              ])
+            ])
+          ]);
+        })
+      )
+    ]);
+  }
+
   function chat(){
   return h("div", { class: "chat-container" },
     [h("div", {class: "chat-messages", ref: elementRef.refchat}, historychat.map(chat => h("div", { class: "chat-message" }, chat.username, ": ", chat.message))),
@@ -330,6 +377,7 @@ const [chatMessages, setChatMessages] = useState("");
     const playerPositions = seconds.map?.playerPositions || [];
     // const lives = seconds.map?.loves || 3;
     return h("div", { class: "game-container", onkeydown: (e) => { handlemoveplayer(e) } }, [
+      playerssidebar(playerPositions), 
       mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs,playerPositions) : h("div", {}, "Chargement de la carte..."),
       chat()
     ]);

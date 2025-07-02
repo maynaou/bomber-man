@@ -1,239 +1,123 @@
 body {
-    font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background: #1a1a1a;
-    color: white;
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #1a1a1a;
+  color: white;
 }
 
 .container {
-    background: #2d2d2d;
-    border-radius: 10px;
-    padding: 30px;
-    text-align: center;
+  background: #2d2d2d;
+  border-radius: 10px;
+  padding: 30px;
+  text-align: center;
 }
 
 input[type="text"] {
-    padding: 10px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    margin: 10px;
-    width: 200px;
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  margin: 10px;
+  width: 200px;
 }
 
 button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background: #ff6b35;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px;
 }
 
 button:hover {
-    background: #e55a2b;
+  background: #e55a2b;
+}
+
+/* Layout du jeu */
+.game-layout {
+  display: flex;
+  height: 100vh;
+  background: #1a1a1a;
+}
+
+.game-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 }
 
 .game-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 80vh;
-    background: #1a1a1a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  width: max-content;
+  float: right; /* Flotte à droite */
 }
 
-/* Map du jeu avec positionnement relatif pour les joueurs absolus */
+/* Map du jeu */
 .game-map {
-    display: grid;
-    gap: 0;
-    border: 3px solid #666;
-    background-image: url('empty.webp');
-    background-size: 40px 40px;
-    background-repeat: repeat;
-    position: relative; /* Important pour le positionnement absolu des joueurs */
+  display: grid;
+  gap: 0;
+  border: 3px solid #666;
+  background-image: url('empty.webp');
+  background-size: 40px 40px;
+  background-repeat: repeat;
+  position: relative;
 }
 
-/* Cellules de base */
+/* Cellules */
 .cell {
-    width: 40px;
-    height: 40px;
-    position: relative;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+  width: 40px;
+  height: 40px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-/* Styles pour les différents éléments */
-.cell.wall {
-    background-image: url('wall.webp');
-}
+.cell.wall { background-image: url('wall.webp'); }
+.cell.block { background-image: url('block.webp'); }
+.cell.speed { background-image: url('speed.png'); }
+.cell.powerUp { background-image: url('bombPower.png'); }
+.cell.flame { background-image: url('flamebonus.png'); }
+.cell.cutted { background-image: url('cutted.gif'); }
 
-.cell.block {
-    background-image: url('block.webp');
-}
-
-.cell.speed {
-    background-image: url('speed.png');
-
-}
-
-.cell.powerUp {
-    background-image: url('bombPower.png');
-
-}
-
-.cell.flame {
-    background-image: url('flamebonus.png');
-
-}
-
-
-.cell.bombs {
-    background-image: url('bomb.png');
-    animation: bomb-blink 0.8s infinite;
-}
-
-.cell.cutted {
-    width: 40px;
-    height: 40px;
-    background-image: url('cutted.gif');
-    background-size: cover;
-    background-position: center;
-}
-
-/* Joueurs avec positionnement en grille (méthode originale corrigée) */
-.cell.player {
-    z-index: 10;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.cell.player.front {
-    background-image: url('wall-front.png');
-}
-
-.cell.player.back {
-    background-image: url('wall-back.png');
-}
-
-.cell.player.left {
-    background-image: url('wall-left.png');
-}
-
-.cell.player.right {
-    background-image: url('wall-right.png');
-}
-
-/* Joueurs avec positionnement absolu (méthode alternative) */
+/* Joueurs */
 .player-absolute {
-    width: 40px;
-    height: 40px;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    pointer-events: auto;
-    outline: none;
+  width: 40px;
+  height: 40px;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.2s ease;
+  outline: none;
 }
 
-.player-absolute.front {
-    background-image: url('wall-front.png');
-}
+.player-absolute.front { background-image: url('wall-front.png'); }
+.player-absolute.back { background-image: url('wall-back.png'); }
+.player-absolute.left { background-image: url('wall-left.png'); }
+.player-absolute.right { background-image: url('wall-right.png'); }
 
-.player-absolute.back {
-    background-image: url('wall-back.png');
-}
-
-.player-absolute.left {
-    background-image: url('wall-left.png');
-}
-
-.player-absolute.right {
-    background-image: url('wall-right.png');
-}
-
-/* Joueur avec bombe (méthode grille) */
-.cell.player.has-bomb::after {
-    content: '';
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    width: 40px;
-    height: 40px;
-    background-image: url('bomb.png');
-    background-size: cover;
-    border-radius: 50%;
-    z-index: 9;
-    animation: bomb-blink 0.8s infinite;
-}
-
-/* Joueur avec bombe (méthode absolue) */
-.player-absolute.has-bomb::after {
-    content: '';
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    width: 40px;
-    height: 40px;
-    background-image: url('bomb.png');
-    background-size: cover;
-    border-radius: 50%;
-    z-index: 9;
-    animation: bomb-blink 0.8s infinite;
-}
-
-/* Animations */
-@keyframes bomb-blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.5; }
-}
-
-.cell.empty {
-    background-color: transparent;
-}
-
-/* Animation de mouvement fluide pour les joueurs */
-.player-absolute {
-    transition: transform 0.2s ease-in-out;
-}
-
-.bomb-absolute.blink {
-    animation: bomb-blink 0.8s infinite;
-    border-radius: 50%;
-}
-
-
-
-/* 💥 Explosion (optionnel) */
-.bomb-absolute.explode {
-    background-image: url('cutted.gif'); /* ← image d’explosion */
-    animation: explode-blink 0.3s ease-out;
-}
-
-@keyframes explode-blink {
-    0% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(2); opacity: 0; }
-}
-
+/* Effets */
 .player-absolute.damaged {
-    filter: hue-rotate(0deg) saturate(2) brightness(1.2);
-    background-color: rgba(255, 0, 0, 0.3);
-    animation: damage-flash 1.5s ease-in-out;
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+  filter: hue-rotate(0deg) saturate(2) brightness(1.2);
+  background-color: rgba(255, 0, 0, 0.3);
+  animation: damage-flash 1.5s ease-in-out;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
 }
 
-/* Effet de pulsation pour les joueurs endommagés */
 .player-absolute.damaged::after {
-      content: '';
+    content: '';
     position: absolute;
     bottom: 0px;
     right: 0px;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     background-image: url('player.png');
     background-size: cover;
     border-radius: 50%;
@@ -241,68 +125,223 @@ button:hover {
     animation: bomb-blink 0.8s infinite;
 }
 
-
-@keyframes bomb-blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.5; }
+.bomb-absolute.blink {
+  animation: bomb-blink 0.8s infinite;
+  border-radius: 50%;
 }
 
+@keyframes bomb-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.5; }
+}
+
+/* Chat */
 .chat-container {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    width: 300px;
-    background: #2d2d2d;
-    padding: 20px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 1000;
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 300px;
+  background: #2d2d2d;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
 }
 
 .chat-messages {
-    background-color: #1f1f1f;
-    border: 1px solid #444;
-    border-radius: 8px;
-    padding: 10px;
-    height: 200px;
-    overflow-y: auto;
-    color: #ddd;
-    font-size: 14px;
+  background: #1f1f1f;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px;
+  height: 200px;
+  overflow-y: auto;
+  color: #ddd;
+  font-size: 14px;
 }
 
 .chat-input {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #555;
-    border-radius: 5px;
-    width: 100%;
-    background-color: #1a1a1a;
-    color: white;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #555;
+  border-radius: 5px;
+  width: 100%;
+  background: #1a1a1a;
+  color: white;
 }
 
-.chat-input::placeholder {
-    color: #aaa;
-}
+.chat-input::placeholder { color: #aaa; }
 
 .chat-button {
-    padding: 10px;
-    font-size: 16px;
-    background-color: #ff6b35;
+  padding: 10px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.chat-button:hover { background: #e55a2b; }
+
+/* Sidebar */
+.sidebar {
+  width: 280px;
+  background: linear-gradient(145deg, #2c2c2c, #1e1e1e);
+  border-right: 3px solid #4a90e2;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-title {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.4em;
+  font-weight: bold;
+  border-bottom: 2px solid #4a90e2;
+  padding-bottom: 10px;
+}
+
+.players-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.player-stat {
+  background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+  border-radius: 12px;
+  padding: 15px;
+  border: 2px solid #444;
+  transition: all 0.3s ease;
+}
+
+.current-player {
+  border-color: #4a90e2;
+  background: linear-gradient(145deg, #4a5a7a, #3a4a6a);
+  box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
+}
+
+.dead-player {
+  opacity: 0.6;
+  border-color: #ff4444;
+  background: linear-gradient(145deg, #4a3a3a, #3a2a2a);
+}
+
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #555;
+}
+
+.player-name {
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.player-status { font-size: 1.2em; }
+
+.player-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+
+.stat-icon {
+  font-size: 1.1em;
+  width: 20px;
+  text-align: center;
+}
+
+.stat-label {
+  color: #ccc;
+  font-size: 0.85em;
+  min-width: 45px;
+}
+
+.stat-value {
+  color: #fff;
+  font-weight: bold;
+  margin-left: auto;
+  background: #4a90e2;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 0.8em;
+  min-width: 20px;
+  text-align: center;
+}
+
+.stat-item:nth-child(1) .stat-value { background: #e74c3c; }
+.stat-item:nth-child(2) .stat-value { background: #f39c12; }
+.stat-item:nth-child(3) .stat-value { background: #e67e22; }
+.stat-item:nth-child(4) .stat-value { background: #9b59b6; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .sidebar { width: 240px; }
+  .player-stats-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .game-layout { flex-direction: column; }
+  .sidebar {
+    width: 100%;
+    height: 200px;
+    border-right: none;
+    border-bottom: 3px solid #4a90e2;
+  }
+  .players-stats {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 10px;
+  }
+  .player-stat {
+    min-width: 200px;
+    flex-shrink: 0;
+  }
+}
+
+#congratulations {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(10, 10, 10, 0.7); 
+    padding: 20px;
+    border-radius: 10px;
+    display: none; 
+    flex-direction: column;
+    align-items: center;
+    z-index: 100; 
+}
+
+#congratulations h1 {
+    text-align: center;
+    font-size: 36px; 
+    margin: 0 0 10px; 
     color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
-    align-self: flex-end;
 }
 
-.chat-button:hover {
-    background-color: #e55a2b;
+#congratulations p {
+    text-align: center;
+    font-size: 18px;
+    margin: 10px 0; 
+    color: white; 
 }
-
-
-
-
-

@@ -38,6 +38,7 @@ export class GenerateMapGame {
                 isAlive: true,
                 isDamaged: false,
                 stats: {
+                    lives: 3,
                     speed: 4,
                     flameRange: 1,
                     maxBombs: 1
@@ -305,11 +306,11 @@ export class GenerateMapGame {
 
     // NEW METHOD: Handle player damage
     damagePlayer(playerId) {
-        const getplayer = Player.getPlayerStatusById(playerId)
         const player = this.playerPositions.find(p => p.id === playerId);
         if (!player || !player.isAlive) return;
-        this.playerclass.loseLife(playerId)
-        const isAlive = getplayer.lives > 1 ? true : false
+        const getplayer = Player.getPlayerStatusById(playerId)
+        const isAlive = getplayer.lives > 0 ? true : false
+        player.stats.lives = getplayer.lives
         player.isAlive = isAlive
 
         if (!isAlive) {
@@ -340,8 +341,38 @@ export class GenerateMapGame {
         this.room.handleBombExplosion('player_eliminated')
 
         // Vérifier s'il reste assez de joueurs pour continuer le jeu
-        // this.checkGameEnd();
+        this.checkGameEnd();
     }
+
+    checkGameEnd() {
+    // Compter les joueurs encore vivants
+    const alivePlayers = this.playerPositions.filter(player => player.isAlive);
+    
+    console.log(`Joueurs encore en vie: ${alivePlayers.length}`);
+    if (alivePlayers.length === 1) {
+        console.log("player win");
+    }
+    
+    // Si il ne reste aucun joueur (égalité/tous morts en même temps)
+    else if (alivePlayers.length === 0) {
+        console.log("💀 Partie terminée! Tous les joueurs sont morts - Match nul");
+        
+        // Notifier la room de l'égalité
+        // this.room.handleGameEnd({
+        //     type: 'game_draw',
+        //     winner: null,
+        //     message: "Match nul! Tous les joueurs ont été éliminés"
+        // });
+        
+        //return true; // Jeu terminé
+    }
+    
+    // Si il reste plus d'un joueur, le jeu continue
+    else {
+        console.log(`Jeu en cours... ${alivePlayers.length} joueurs restants`);
+    }
+}
+
 
     explodeBomb(r, c) {
         this.activeBombs = this.activeBombs.filter(b => !(b.r === r && b.c === c));
@@ -450,7 +481,6 @@ export class GenerateMapGame {
             const gridC = Math.floor(playerCenterX / this.cellSize);
 
             if (gridC === c && gridR === r) {
-                console.log("-------------------------------------");
 
         if (['speed', 'flame', 'powerUp'].includes(bonusType)) {
             const player = this.playerPositions.find(p => p.id === this.player.id);

@@ -9,16 +9,13 @@ export class Player {
     lives.push({ id: this.id, username: this.username, lives: 3 });
   }
 
-  loseLife(id) {
-    const player = lives.find(lv => lv.id === id);
+   static getPlayerStatusById(id) {
+   const player = lives.find(player => player.id === id);
+    if (!player) return null;
+
     if (player && player.lives > 0) {
         player.lives--;   
     }
-  }
-
-   static getPlayerStatusById(id) {
-   const player = lives.find(player => player.id === id);
-   if (!player) return null;
 
    return {
     id: player.id,

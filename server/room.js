@@ -54,7 +54,7 @@ export class Room {
     startWaitingTimer() {
         if (this.waitingTimer) return
 
-        let timer = 5;
+        let timer = 20;
         this.waitingTimer = setInterval(() => {
             if (this.players.size >= 2 && this.gameState === 'waiting') {
                 this.broadcast({
@@ -81,7 +81,6 @@ export class Room {
 
         this.gameState = 'countdown'
         let timer = 10
-        // Timer de 10 secondes
         this.countdownTimer = setInterval(() => {
             this.broadcast({
                 type: 'countdown_start',
