@@ -93,6 +93,17 @@ const [chatMessages, setChatMessages] = useState("");
     ]);
 }
 
+  function handle_win(playerPositions) {
+    return h("div",{id:"congratulations"},[
+       h("h1",{},"Congratulations!"),
+       h("p",{id : "congratulations-message"},`${playerPositions[0].username} Win The Game`),
+        h("button", {
+          type: "submit",
+          onclick: () => renderAppFn(() => App("login"), mount),
+        }, "Rejoindre la partie")
+    ])
+  }
+
   function createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs = [], playerPositions = []) {
     const mapCells = [];
     const playerElements = [];
@@ -165,7 +176,6 @@ const [chatMessages, setChatMessages] = useState("");
 
     // ✅ AJOUT: Vérifier si le joueur est endommagé
     const isDamaged = player.isDamaged || false;
-    const isAlive = player.isAlive !== false; // true par défaut
 
     const playerElement = h("div", {
         class: `player-absolute ${player.direction}${isDamaged ? ' damaged' : ''}`,
@@ -367,7 +377,7 @@ const [chatMessages, setChatMessages] = useState("");
   }
 
   if (gameState === 'game_start') {
-    const playerList = Array.isArray(players) ? players : [];
+    //  const playerList = Array.isArray(players) ? players : [];
 
     // Récupérer les données de la carte depuis le message
     const mapData = seconds.map?.data;
@@ -375,6 +385,15 @@ const [chatMessages, setChatMessages] = useState("");
     const cols = seconds.map?.cols || 21;
     const activeBombs = seconds.map?.activeBombs || [];
     const playerPositions = seconds.map?.playerPositions || [];
+    if (playerPositions.length === 1) {
+
+    return h("div", { class: "game-container", onkeydown: (e) => { handlemoveplayer(e) } }, [
+      handle_win(playerPositions),
+      playerssidebar(playerPositions), 
+      mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs,playerPositions) : h("div", {}, "Chargement de la carte..."),
+      chat()
+    ]);
+    }
     // const lives = seconds.map?.loves || 3;
     return h("div", { class: "game-container", onkeydown: (e) => { handlemoveplayer(e) } }, [
       playerssidebar(playerPositions), 

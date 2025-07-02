@@ -320,23 +320,22 @@ button:hover {
 
 #congratulations {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 43%;
+    left: 48%;
     transform: translate(-50%, -50%);
     background-color: rgba(10, 10, 10, 0.7); 
-    padding: 20px;
-    border-radius: 10px;
-    display: none; 
+    padding: 37px;
+    border-radius: 24px;
     flex-direction: column;
     align-items: center;
-    z-index: 100; 
+    z-index: 1000; 
 }
 
 #congratulations h1 {
     text-align: center;
-    font-size: 36px; 
+    font-size: 20px; 
     margin: 0 0 10px; 
-    color: white;
+    color: rgb(233, 93, 13);
 }
 
 #congratulations p {

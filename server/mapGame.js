@@ -350,21 +350,13 @@ export class GenerateMapGame {
     
     console.log(`Joueurs encore en vie: ${alivePlayers.length}`);
     if (alivePlayers.length === 1) {
-        console.log("player win");
-    }
+        this.room.handleBombExplosion()
+     }
     
     // Si il ne reste aucun joueur (égalité/tous morts en même temps)
     else if (alivePlayers.length === 0) {
         console.log("💀 Partie terminée! Tous les joueurs sont morts - Match nul");
-        
-        // Notifier la room de l'égalité
-        // this.room.handleGameEnd({
-        //     type: 'game_draw',
-        //     winner: null,
-        //     message: "Match nul! Tous les joueurs ont été éliminés"
-        // });
-        
-        //return true; // Jeu terminé
+             this.room.handleBombExplosion()
     }
     
     // Si il reste plus d'un joueur, le jeu continue
