@@ -443,17 +443,14 @@ export class GenerateMapGame {
     collectBonus(r, c) {
         const bonusType = this.mapData[r][c];
 
-            // const playerCenterX = this.player.pixelX + 30; // Centre du joueur (40px/2)
-            // const playerCenterY = this.player.pixelY + 30;
-            // // Position de grille la plus proche du centre du joueur
-            // const gridR = Math.floor(playerCenterY / this.cellSize);
-            // const gridC = Math.floor(playerCenterX / this.cellSize);
+            const playerCenterX = this.player.pixelX + 20; // Centre du joueur (40px/2)
+            const playerCenterY = this.player.pixelY + 20;
+            // Position de grille la plus proche du centre du joueur
+            const gridR = Math.floor(playerCenterY / this.cellSize);
+            const gridC = Math.floor(playerCenterX / this.cellSize);
 
-            // if (gridC !== c || gridR !== r) {
-            //     console.log("-------------------------------------");
-                
-            //     return 
-            // }
+            if (gridC === c && gridR === r) {
+                console.log("-------------------------------------");
 
         if (['speed', 'flame', 'powerUp'].includes(bonusType)) {
             const player = this.playerPositions.find(p => p.id === this.player.id);
@@ -481,5 +478,6 @@ export class GenerateMapGame {
                 }
             }
         }
+    }
     }
 }
