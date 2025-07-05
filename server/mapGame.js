@@ -1,4 +1,5 @@
 import { Player } from "./player.js";
+import { playerConnections } from "./server.js";
 export class GenerateMapGame {
     constructor(rows, cols, playerIds, room, players, playerclass) {
         this.rows = rows;
@@ -96,13 +97,13 @@ export class GenerateMapGame {
 
                     return {
                         success: true,
-                        type : 'place_bombs',
+                        type: 'place_bombs',
                         action: 'bomb'
                     };
                 }
             }
         }
-    
+
         const moveSpeed = player.stats.speed
         let newPixelX = currentPixelX;
         let newPixelY = currentPixelY;
@@ -148,7 +149,7 @@ export class GenerateMapGame {
 
         return {
             success: true,
-            type : 'game_start',
+            type: 'game_start',
             action: 'move'
         };
     }
@@ -325,7 +326,7 @@ export class GenerateMapGame {
 
             setTimeout(() => {
                 player.isDamaged = false;
-                 this.room.handleBombExplosion()
+                this.room.handleBombExplosion()
             }, 3000);
 
             this.room.handleBombExplosion()
@@ -337,7 +338,6 @@ export class GenerateMapGame {
         this.playerPositions = this.playerPositions.filter(player => player.id !== playerId);
         this.activeBombs = this.activeBombs.filter(bomb => bomb.playerId !== playerId);
         this.playerIds = this.playerIds.filter(id => id !== playerId);
-        console.log(`Player ${playerId} has been removed from the game`);
         this.room.handleBombExplosion('player_eliminated')
 
         // Vérifier s'il reste assez de joueurs pour continuer le jeu
@@ -345,25 +345,39 @@ export class GenerateMapGame {
     }
 
     checkGameEnd() {
-    // Compter les joueurs encore vivants
-    const alivePlayers = this.playerPositions.filter(player => player.isAlive);
-    
-    console.log(`Joueurs encore en vie: ${alivePlayers.length}`);
-    if (alivePlayers.length === 1) {
-        this.room.handleBombExplosion()
-     }
-    
-    // Si il ne reste aucun joueur (égalité/tous morts en même temps)
-    else if (alivePlayers.length === 0) {
-        console.log("💀 Partie terminée! Tous les joueurs sont morts - Match nul");
-             this.room.handleBombExplosion()
+        // Compter les joueurs encore vivants
+        const alivePlayers = this.playerPositions.filter(player => player.isAlive);
+
+        console.log(`Joueurs encore en vie: ${alivePlayers.length}`);
+        if (alivePlayers.length === 1) {
+            this.room.handleBombExplosion()
+            this.room.players.clear();
+            playerConnections.clear();
+            this.room.gameState = "waiting"
+            this.room.waitingTimer = null;
+            this.room.countdownTimer = null;
+            this.room.chathistory = [];
+            this.room.player = null
+        }
+
+        // Si il ne reste aucun joueur (égalité/tous morts en même temps)
+        else if (alivePlayers.length === 0) {
+            console.log("💀 Partie terminée! Tous les joueurs sont morts - Match nul");
+            this.room.handleBombExplosion()
+            this.room.players.clear();
+            playerConnections.clear()
+            this.room.gameState = "waiting"
+            this.room.waitingTimer = null;
+            this.room.countdownTimer = null;
+            this.room.chathistory = [];
+            this.room.player = null
+        }
+
+        // Si il reste plus d'un joueur, le jeu continue
+        else {
+            console.log(`Jeu en cours... ${alivePlayers.length} joueurs restants`);
+        }
     }
-    
-    // Si il reste plus d'un joueur, le jeu continue
-    else {
-        console.log(`Jeu en cours... ${alivePlayers.length} joueurs restants`);
-    }
-}
 
 
     explodeBomb(r, c) {
@@ -409,7 +423,7 @@ export class GenerateMapGame {
                 if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
                     const target = this.mapData[nr][nc];
 
-         
+
                     if (target === 'wall') break
                     if (target === 'block') {
                         const bonus = generateRandomBonus();
@@ -444,7 +458,7 @@ export class GenerateMapGame {
         }
     }
 
-        cleanupCuttedTiles() {
+    cleanupCuttedTiles() {
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
                 if (this.mapData[r][c] === 'cutted') {
@@ -466,40 +480,40 @@ export class GenerateMapGame {
     collectBonus(r, c) {
         const bonusType = this.mapData[r][c];
 
-            const playerCenterX = this.player.pixelX + 20; // Centre du joueur (40px/2)
-            const playerCenterY = this.player.pixelY + 20;
-            // Position de grille la plus proche du centre du joueur
-            const gridR = Math.floor(playerCenterY / this.cellSize);
-            const gridC = Math.floor(playerCenterX / this.cellSize);
+        const playerCenterX = this.player.pixelX + 20; // Centre du joueur (40px/2)
+        const playerCenterY = this.player.pixelY + 20;
+        // Position de grille la plus proche du centre du joueur
+        const gridR = Math.floor(playerCenterY / this.cellSize);
+        const gridC = Math.floor(playerCenterX / this.cellSize);
 
-            if (gridC === c && gridR === r) {
+        if (gridC === c && gridR === r) {
 
-        if (['speed', 'flame', 'powerUp'].includes(bonusType)) {
-            const player = this.playerPositions.find(p => p.id === this.player.id);
+            if (['speed', 'flame', 'powerUp'].includes(bonusType)) {
+                const player = this.playerPositions.find(p => p.id === this.player.id);
 
-            if (player) {
+                if (player) {
 
-                // Appliquer l'effet du bonus
-                switch (bonusType) {
-                    case 'speed':
-                        player.stats.speed = Math.min(player.stats.speed + 2, 8); // Incréments de 3
-                        break;
-                    case 'flame':
-                        player.stats.flameRange = Math.min(player.stats.flameRange + 1, 4); // Max 8
-                        break;
-                    case 'powerUp':
-                        player.stats.maxBombs = Math.min(player.stats.maxBombs + 1, 3); // Max 10
-                        break;
-                }
+                    // Appliquer l'effet du bonus
+                    switch (bonusType) {
+                        case 'speed':
+                            player.stats.speed = Math.min(player.stats.speed + 2, 8); // Incréments de 3
+                            break;
+                        case 'flame':
+                            player.stats.flameRange = Math.min(player.stats.flameRange + 1, 4); // Max 8
+                            break;
+                        case 'powerUp':
+                            player.stats.maxBombs = Math.min(player.stats.maxBombs + 1, 3); // Max 10
+                            break;
+                    }
 
-                // Retirer le bonus de la carte
-                this.mapData[r][c] = 'empty';
+                    // Retirer le bonus de la carte
+                    this.mapData[r][c] = 'empty';
 
-                if (this.bonuses) {
-                    this.bonuses = this.bonuses.filter(b => !(b.r === r && b.c === c));
+                    if (this.bonuses) {
+                        this.bonuses = this.bonuses.filter(b => !(b.r === r && b.c === c));
+                    }
                 }
             }
         }
-    }
     }
 }

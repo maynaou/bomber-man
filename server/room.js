@@ -51,7 +51,7 @@ export class Room {
         }
     }
 
-    startWaitingTimer() {
+    startWaitingTimer() {        
         if (this.waitingTimer) return
 
         let timer = 20;
@@ -123,6 +123,8 @@ export class Room {
                 playerPositions: this.gameMap.playerPositions
             }
         });
+
+        this.gameMap.checkGameEnd()
     }
 
     clearWaitingTimer() {
