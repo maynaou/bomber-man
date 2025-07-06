@@ -83,7 +83,6 @@ export class Room {
     this.gameState = "waiting";
     this.waitingTimer = null;
     this.countdownTimer = null;
-    this.gameMap = null;
     this.chathistory = [];
     this.player = null;
     this.gameStart = true;

@@ -331,7 +331,7 @@ export class GenerateMapGame {
     removeDeadPlayer(playerId) {
         this.playerPositions = this.playerPositions.filter(player => player.id !== playerId);
         this.activeBombs = this.activeBombs.filter(bomb => bomb.playerId !== playerId);
-        room.handleBombExplosion('player_eliminated')
+        room.handleBombExplosion()
 
         // Vérifier s'il reste assez de joueurs pour continuer le jeu
         this.checkGameEnd();

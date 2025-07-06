@@ -100,7 +100,7 @@ const [chatMessages, setChatMessages] = useState("");
         h("button", {
           type: "submit",
           onclick: () => renderAppFn(() => App("login"), mount),
-        }, "Rejoindre la partie")
+        }, "Restart Game")
     ])
   }
 
