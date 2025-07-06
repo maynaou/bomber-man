@@ -1,18 +1,15 @@
 import { Player } from "./player.js";
 import { playerConnections } from "./server.js";
+import { room } from "./server.js";
 export class GenerateMapGame {
-    constructor(rows, cols, playerIds, room, players, playerclass) {
+    constructor(rows, cols) {
         this.rows = rows;
         this.cols = cols;
-        this.playerclass = playerclass
-        this.players = players
-        this.playerIds = playerIds;
         this.playerPositions = this.generatePlayerPositions();
         this.mapData = this.generateMapData();
         this.player = null
         this.activeBombs = [];
         this.cellSize = 40;
-        this.room = room;
         this.bonuses = [];
     }
 
@@ -24,13 +21,10 @@ export class GenerateMapGame {
             { r: this.rows - 2, c: this.cols - 2 },
         ];
 
-        return this.playerIds.map((id, index) => {
-            const player = this.players.find(p => p.id === id);
-            const username = player.username;
-
+        return Array.from(room.players.values()).map((player, index) => {
             return {
-                username: username,
-                id,
+                username: player.username,
+                id: player.id,
                 r: cornerPositions[index].r,
                 c: cornerPositions[index].c,
                 pixelX: cornerPositions[index].c * 40,
@@ -234,15 +228,15 @@ export class GenerateMapGame {
                 // this.player.lastBombCell = { r: gridR, c: gridC };
                 //console.log(" bomb placd legth ==> ", this.activeBombs.length, "statz : ", this.player.stats.maxBombs);
                 setTimeout(() => {
-                    this.room.handleBombExplosion()
+                    room.handleBombExplosion()
                     this.explodeBomb(gridR, gridC);
                     this.handleExplosionDamage(gridR, gridC)
-                    this.room.handleBombExplosion()
+                    room.handleBombExplosion()
                 }, 4000);
 
                 setTimeout(() => {
                     this.explodeBomb(gridR, gridC);
-                    this.room.handleBombExplosion()
+                    room.handleBombExplosion()
                 }, 4700);
 
                 return true
@@ -254,8 +248,8 @@ export class GenerateMapGame {
 
 
     handleExplosionDamage(bombR, bombC) {
-        const bomberPlayer = this.playerPositions.find(p => p.id === this.player.id);
-        const flameRange = bomberPlayer ? bomberPlayer.stats.flameRange : 1;
+        //const bomberPlayer = this.playerPositions.find(p => p.id === this.player.id);
+        const flameRange = this.player ? this.player.stats.flameRange : 1;
 
         // Check if any player is at the bomb location
         this.checkPlayerDamage(bombR, bombC);
@@ -316,7 +310,7 @@ export class GenerateMapGame {
 
         if (!isAlive) {
             player.isDamaged = true
-            this.room.handleBombExplosion()
+            room.handleBombExplosion()
             // Retirer le joueur après un délai pour l'animation de mort
             setTimeout(() => {
                 this.removeDeadPlayer(playerId);
@@ -326,10 +320,10 @@ export class GenerateMapGame {
 
             setTimeout(() => {
                 player.isDamaged = false;
-                this.room.handleBombExplosion()
+                room.handleBombExplosion()
             }, 3000);
 
-            this.room.handleBombExplosion()
+            room.handleBombExplosion()
 
         }
     }
@@ -337,8 +331,7 @@ export class GenerateMapGame {
     removeDeadPlayer(playerId) {
         this.playerPositions = this.playerPositions.filter(player => player.id !== playerId);
         this.activeBombs = this.activeBombs.filter(bomb => bomb.playerId !== playerId);
-        this.playerIds = this.playerIds.filter(id => id !== playerId);
-        this.room.handleBombExplosion('player_eliminated')
+        room.handleBombExplosion('player_eliminated')
 
         // Vérifier s'il reste assez de joueurs pour continuer le jeu
         this.checkGameEnd();
@@ -350,27 +343,17 @@ export class GenerateMapGame {
 
         console.log(`Joueurs encore en vie: ${alivePlayers.length}`);
         if (alivePlayers.length === 1) {
-            this.room.handleBombExplosion()
-            this.room.players.clear();
-            playerConnections.clear();
-            this.room.gameState = "waiting"
-            this.room.waitingTimer = null;
-            this.room.countdownTimer = null;
-            this.room.chathistory = [];
-            this.room.player = null
+           room.handleBombExplosion()
+           playerConnections.clear()
+           room.resetGame()
         }
 
         // Si il ne reste aucun joueur (égalité/tous morts en même temps)
         else if (alivePlayers.length === 0) {
             console.log("💀 Partie terminée! Tous les joueurs sont morts - Match nul");
-            this.room.handleBombExplosion()
-            this.room.players.clear();
+            room.handleBombExplosion()
             playerConnections.clear()
-            this.room.gameState = "waiting"
-            this.room.waitingTimer = null;
-            this.room.countdownTimer = null;
-            this.room.chathistory = [];
-            this.room.player = null
+            room.resetGame()
         }
 
         // Si il reste plus d'un joueur, le jeu continue
@@ -379,13 +362,42 @@ export class GenerateMapGame {
         }
     }
 
+   /* endGame(result, winner = null) {
+    // Notifier la fin de partie
+   room.broadcast({
+        type: 'game_end',
+        result: result,
+        winner: winner ? {
+            id: winner.id,
+            username: winner.username
+        } : null,
+        players: Array.from(room.players.values()).map(p => ({
+            id: p.id,
+            username: p.username,
+        }))
+    });
+
+    // Reset du jeu après un délai
+    setTimeout(() => {
+        room.resetGame();
+        // Vider les connexions des joueurs
+        playerConnections.clear();
+        
+        // Notifier que le lobby est prêt
+        room.broadcast({
+            type: 'lobby',
+            players: [],
+            seconds: 'waiting for players'
+        });
+    }, 5000); // 5 secondes pour voir le résultat
+}*/
 
     explodeBomb(r, c) {
         this.activeBombs = this.activeBombs.filter(b => !(b.r === r && b.c === c));
-        const player = this.playerPositions.find(p => p.id === this.player.id);
-        const flameRange = player ? player.stats.flameRange : 1;
+       // const player = this.playerPositions.find(p => p.id === this.player.id);
+        const flameRange = this.player ? this.player.stats.flameRange : 1;
 
-        if (!player) {
+        if (!this.player) {
             this.cleanupCuttedTiles()
             return
         }
@@ -489,20 +501,20 @@ export class GenerateMapGame {
         if (gridC === c && gridR === r) {
 
             if (['speed', 'flame', 'powerUp'].includes(bonusType)) {
-                const player = this.playerPositions.find(p => p.id === this.player.id);
+               // const player = this.playerPositions.find(p => p.id === this.player.id);
 
-                if (player) {
+                if (this.player) {
 
                     // Appliquer l'effet du bonus
                     switch (bonusType) {
                         case 'speed':
-                            player.stats.speed = Math.min(player.stats.speed + 2, 8); // Incréments de 3
+                            this.player.stats.speed = Math.min(this.player.stats.speed + 2, 8); // Incréments de 3
                             break;
                         case 'flame':
-                            player.stats.flameRange = Math.min(player.stats.flameRange + 1, 4); // Max 8
+                            this.player.stats.flameRange = Math.min(this.player.stats.flameRange + 1, 4); // Max 8
                             break;
                         case 'powerUp':
-                            player.stats.maxBombs = Math.min(player.stats.maxBombs + 1, 3); // Max 10
+                            this.player.stats.maxBombs = Math.min(this.player.stats.maxBombs + 1, 3); // Max 10
                             break;
                     }
 

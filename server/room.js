@@ -9,6 +9,7 @@ export class Room {
         this.gameMap = null
         this.chathistory = [];
         this.player = null
+        this.gameStart = true
 
     }
 
@@ -54,7 +55,7 @@ export class Room {
     startWaitingTimer() {        
         if (this.waitingTimer) return
 
-        let timer = 20;
+        let timer = 5;
         this.waitingTimer = setInterval(() => {
             if (this.players.size >= 2 && this.gameState === 'waiting') {
                 this.broadcast({
@@ -71,10 +72,22 @@ export class Room {
                 if (timer < 0) {
                     this.clearWaitingTimer()
                     this.startGame(); // Move this outside the interval
+                    this.gameStart = false
                 }
             }
         }, 1000);
     }
+
+    resetGame() {
+    this.players.clear();
+    this.gameState = "waiting";
+    this.waitingTimer = null;
+    this.countdownTimer = null;
+    this.gameMap = null;
+    this.chathistory = [];
+    this.player = null;
+    this.gameStart = true;
+}
 
     startCountdown() {
         if (this.gameState !== 'waiting') return
@@ -95,6 +108,8 @@ export class Room {
             if (timer < 0) {
                 this.clearCountDown()
                 this.startGame();
+
+                this.gameStart = false
             }
 
         }, 1000);
@@ -104,9 +119,9 @@ export class Room {
 
 
     startGame() {
+
         this.gameState = 'playing';
-        const playerIds = Array.from(this.players.keys());
-        this.gameMap = new GenerateMapGame(17, 21, playerIds, this, Array.from(this.players.values()), this.player);
+        this.gameMap = new GenerateMapGame(17, 21);
         const mapData = this.gameMap.mapData;
         // console.log(this.gameMap.playerPositions);
 

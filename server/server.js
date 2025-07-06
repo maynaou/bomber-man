@@ -1,6 +1,7 @@
 import { Room } from "./room.js"
 import http from "http"
 import { WebSocketServer } from "ws"
+import { GenerateMapGame } from "./mapGame.js"
 // const wsSocket = require("ws")
 
 const server = http.createServer((req, res) => {
@@ -8,7 +9,7 @@ const server = http.createServer((req, res) => {
 })
 
 const wss = new WebSocketServer({ server })
-const room = new Room()
+export const room = new Room()
 export const playerConnections = new Map();
 
 wss.on('connection', (ws) => {
@@ -18,7 +19,7 @@ wss.on('connection', (ws) => {
 
             switch (data.type) {
                 case 'join':
-                    if (room.players.size < 4) {
+                    if (room.players.size < 4 && room.gameStart) {
                         // console.log(data);
                         const playerId = room.addPlayer(data.username, ws)
                         playerConnections.set(ws, playerId)
@@ -40,17 +41,31 @@ wss.on('connection', (ws) => {
     });
 
     ws.on('close', () => {
-     
-            for (let [key, player] of room.players.entries()) {
-                if (player.ws === ws) {
-                    playerConnections.delete(ws)
-                    room.players.delete(key);
-                }
+    let disconnectedPlayerId = null;
+
+        for (let [key, player] of room.players.entries()) {
+            if (player.ws === ws) {
+                disconnectedPlayerId = key
+                playerConnections.delete(ws)
+                room.players.delete(key);
             }
+        }
 
-
-
-            if (room.players.size === 1) {
+         if (room.gameState === 'playing' && disconnectedPlayerId && room.gameMap) {
+              room.gameMap.playerPositions = room.gameMap.playerPositions.filter(
+            player => player.id !== disconnectedPlayerId
+         );
+        
+        // Nettoyer les bombes du joueur déconnecté
+          room.gameMap.activeBombs = room.gameMap.activeBombs.filter(
+            bomb => bomb.playerId !== disconnectedPlayerId
+          );
+        
+        // Vérifier la fin du jeu
+          room.gameMap.checkGameEnd();
+        
+        // Notifier les autres joueurs
+    }else if (room.players.size === 1 && room.gameStart) {
                 room.clearWaitingTimer()
                 room.gameState = "waiting"
                 room.waitingTimer = null;
@@ -65,8 +80,9 @@ wss.on('connection', (ws) => {
                     })),
                     seconds: 'waiting for players'
                 });
-            }
-            // console.log(playerConnections);
+
+        }
+        // console.log(playerConnections);
     });
 });
 
