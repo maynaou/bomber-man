@@ -9,7 +9,7 @@ let globalUsername = null; // ✅ AJOUT: Variable globale pour le nom d'utilisat
 
 export function App(gameState, players = [], seconds = {}) {
 
-const [chatMessages, setChatMessages] = useState("");
+// const [chatMessages, setChatMessages] = useState("");
 
   const [username, setUsername] = useState("");
   function handleJoinGame(username) {
@@ -70,19 +70,19 @@ const [chatMessages, setChatMessages] = useState("");
 
   function chat(){
   return h("div", { class: "chat-container" },
-    [h("div", {class: "chat-messages", ref: elementRef.refchat}, historychat.map(chat => h("div", { class: "chat-message" }, chat.username, ": ", chat.message))),
+    [h("div", {class: "chat-messages", ref: elementRef.refchat}, ),
       h("input", {
         class: "chat-input",
         placeholder: "Entrez votre message...",  
         // value: chatMessages,
-          onInput: (e) => {
-            setChatMessages(e.target.value);
-          },
+          // onInput: (e) => {
+          //   setChatMessages(e.target.value);
+          // },
           onKeyPress: (e) => {
             if (e.key === 'Enter') {
+              handlechat(username, e.target.value);
               e.target.value = "";              
-               handlechat(username, chatMessages);
-               setChatMessages("");
+              //  setChatMessages("");
             }
           }
            }),
@@ -100,7 +100,7 @@ const [chatMessages, setChatMessages] = useState("");
         h("button", {
           type: "submit",
           onclick: () => renderAppFn(() => App("login"), mount),
-        }, "Restart Game")
+        }, "Rejoindre la partie")
     ])
   }
 

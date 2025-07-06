@@ -55,7 +55,7 @@ export class Room {
     startWaitingTimer() {        
         if (this.waitingTimer) return
 
-        let timer = 5;
+        let timer = 20;
         this.waitingTimer = setInterval(() => {
             if (this.players.size >= 2 && this.gameState === 'waiting') {
                 this.broadcast({

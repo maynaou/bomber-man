@@ -67,6 +67,7 @@ function handleMessage(message) {
             elementRef.refchat.ref.appendChild(
                 createElement(h("div", { class: "chat-message" }, message.username, ": ", message.message))
             )
+            elementRef.refchat.ref.scrollTop = elementRef.refchat.ref.scrollHeight;
             break;
         case 'chat_history':
             for (const chat of message.history) {
