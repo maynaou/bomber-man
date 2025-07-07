@@ -31,6 +31,8 @@ export class GenerateMapGame {
                 direction: 'front',
                 isAlive: true,
                 isDamaged: false,
+                canPassThrough : false,
+                lastBombCell:null,
                 stats: {
                     lives: 3,
                     speed: 4,
@@ -151,6 +153,7 @@ export class GenerateMapGame {
     }
 
     isValidMove(pixelX, pixelY, playerId) {
+        const player = this.playerPositions.find(p => p.id === playerId);
         const topLeftGridR = Math.floor(pixelY / this.cellSize);
         const topLeftGridC = Math.floor(pixelX / this.cellSize);
         const bottomRightGridR = Math.floor((pixelY + 32 - 1) / this.cellSize);
@@ -167,10 +170,14 @@ export class GenerateMapGame {
                 if (cellType === 'wall' || cellType === 'block') {
                     return false;
                 }
+               
+                
 
                 const bombHere = this.activeBombs.find(b => b.r === r && b.c === c);
                 if (bombHere) {
-                    if (bombHere.playerId === playerId && bombHere.canPassThrough) {
+                    // console.log("canPassThrough : ", player.canPassThrough);
+
+                    if ( player.canPassThrough) {
                         continue; // Permettre le passage
                     } else {
                         return false; // Bloquer
@@ -186,8 +193,10 @@ export class GenerateMapGame {
         const player = this.playerPositions.find(p => p.id === playerId);
 
         const bomb = this.activeBombs.find(
-            b => b.playerId === playerId && b.canPassThrough
+            b => b.r === player.lastBombCell.r && b.c === player.lastBombCell.c
         );
+
+         console.log("------------------------------------------",bomb);
 
         if (!bomb) return;
 
@@ -201,7 +210,9 @@ export class GenerateMapGame {
             player.pixelY + this.cellSize > bombPixelY;
 
         if (!insideBombCell) {
-            bomb.canPassThrough = false;
+            console.log("------------------------------------------");
+            // bomb.canPassThrough = false;
+            player.canPassThrough = false
         }
     }
 
@@ -226,18 +237,22 @@ export class GenerateMapGame {
                     r: gridR,
                     c: gridC,
                     playerId: player.id,
-                    canPassThrough: true,
                     pixelX: gridC * this.cellSize,
                     pixelY: gridR * this.cellSize
                 });
-                // this.player.lastBombCell = { r: gridR, c: gridC };
+
+               
+                this.playerPositions.forEach((player)=> {
+                     player.lastBombCell = { r: gridR, c: gridC },
+                     player.canPassThrough = true
+                })
                 //console.log(" bomb placd legth ==> ", this.activeBombs.length, "statz : ", this.player.stats.maxBombs);
                 setTimeout(() => {
                     room.handleBombExplosion()
                     this.explodeBomb(gridR, gridC, playerId);
                     this.handleExplosionDamage(gridR, gridC, playerId)
                     room.handleBombExplosion()
-                }, 3000);
+                }, 7000);
 
                 setTimeout(() => {
                     this.explodeBomb(gridR, gridC, playerId);
@@ -245,7 +260,7 @@ export class GenerateMapGame {
                         this.cleanupCuttedTiles()
                     }
                     room.handleBombExplosion()
-                }, 3700);
+                }, 7700);
 
                 return true
             }
@@ -349,7 +364,7 @@ export class GenerateMapGame {
         // Compter les joueurs encore vivants
         const alivePlayers = this.playerPositions.filter(player => player.isAlive);
 
-        console.log(`Joueurs encore en vie: ${alivePlayers.length}`);
+        // console.log(`Joueurs encore en vie: ${alivePlayers.length}`);
         if (alivePlayers.length === 1) {
             room.handleBombExplosion()
             playerConnections.clear()
@@ -358,7 +373,7 @@ export class GenerateMapGame {
 
         // Si il ne reste aucun joueur (égalité/tous morts en même temps)
         else if (alivePlayers.length === 0) {
-            console.log("💀 Partie terminée! Tous les joueurs sont morts - Match nul");
+            // console.log("💀 Partie terminée! Tous les joueurs sont morts - Match nul");
             room.handleBombExplosion()
             playerConnections.clear()
             room.resetGame()
@@ -366,7 +381,7 @@ export class GenerateMapGame {
 
         // Si il reste plus d'un joueur, le jeu continue
         else {
-            console.log(`Jeu en cours... ${alivePlayers.length} joueurs restants`);
+            // console.log(`Jeu en cours... ${alivePlayers.length} joueurs restants`);
         }
     }
 

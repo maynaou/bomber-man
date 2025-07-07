@@ -58,7 +58,8 @@ button:hover {
   align-items: center;
   margin-bottom: 20px;
   width: max-content;
-  float: right; /* Flotte à droite */
+  float: right;
+  /* Flotte à droite */
 }
 
 /* Map du jeu */
@@ -81,12 +82,29 @@ button:hover {
   background-repeat: no-repeat;
 }
 
-.cell.wall { background-image: url('wall.webp'); }
-.cell.block { background-image: url('block.webp'); }
-.cell.speed { background-image: url('speed.png'); }
-.cell.powerUp { background-image: url('bombPower.png'); }
-.cell.flame { background-image: url('flamebonus.png'); }
-.cell.cutted { background-image: url('cutted.gif'); }
+.cell.wall {
+  background-image: url('wall.webp');
+}
+
+.cell.block {
+  background-image: url('block.webp');
+}
+
+.cell.speed {
+  background-image: url('speed.png');
+}
+
+.cell.powerUp {
+  background-image: url('bombPower.png');
+}
+
+.cell.flame {
+  background-image: url('flamebonus.png');
+}
+
+.cell.cutted {
+  background-image: url('cutted.gif');
+}
 
 /* Joueurs */
 .player-absolute {
@@ -98,10 +116,103 @@ button:hover {
   outline: none;
 }
 
-.player-absolute.front { background-image: url('wall-front.png'); }
-.player-absolute.back { background-image: url('wall-back.png'); }
-.player-absolute.left { background-image: url('wall-left.png'); }
-.player-absolute.right { background-image: url('wall-right.png'); }
+.player-absolute.front.player-1 {
+  background-image: url('wall-front.png');
+  /* filter: hue-rotate(200deg) saturate(1000%); */
+
+}
+
+.player-absolute.back.player-1 {
+  background-image: url('wall-back.png');
+  /* filter: hue-rotate(90deg) saturate(200%); */
+}
+
+.player-absolute.left.player-1 {
+  background-image: url('wall-left.png');
+  /* filter: hue-rotate(90deg) saturate(1000%) */
+
+}
+
+.player-absolute.right.player-1 {
+  background-image: url('wall-right.png');
+  /* filter:saturate(30) ; */
+}
+
+.player-absolute.front.player-2 {
+  background-image: url('wall-front.png');
+  filter: saturate(30);
+
+}
+
+.player-absolute.back.player-2 {
+  background-image: url('wall-back.png');
+  filter: saturate(30);
+}
+
+.player-absolute.left.player-2 {
+  background-image: url('wall-left.png');
+  filter: saturate(30);
+
+}
+
+.player-absolute.right.player-2 {
+  background-image: url('wall-right.png');
+  filter: saturate(30);
+
+
+}
+
+.player-absolute.front.player-3 {
+  background-image: url('wall-front.png');
+  filter: hue-rotate(200deg) saturate(1000%);
+
+
+}
+
+.player-absolute.back.player-3 {
+  background-image: url('wall-back.png');
+  filter: hue-rotate(200deg) saturate(1000%);
+
+
+}
+
+.player-absolute.left.player-3 {
+  background-image: url('wall-left.png');
+  filter: hue-rotate(200deg) saturate(1000%);
+
+
+}
+
+.player-absolute.right.player-3 {
+  background-image: url('wall-right.png');
+  filter: hue-rotate(200deg) saturate(1000%);
+
+
+
+}
+
+.player-absolute.front.player-4 {
+  background-image: url('wall-front.png');
+  filter: hue-rotate(90deg) saturate(1000%)
+}
+
+.player-absolute.back.player-4 {
+  background-image: url('wall-back.png');
+  filter: hue-rotate(90deg) saturate(1000%)
+}
+
+.player-absolute.left.player-4 {
+  background-image: url('wall-left.png');
+  filter: hue-rotate(90deg) saturate(1000%)
+}
+
+.player-absolute.right.player-4 {
+  background-image: url('wall-right.png');
+  filter: hue-rotate(90deg) saturate(1000%)
+}
+
+
+
 
 /* Effets */
 .player-absolute.damaged {
@@ -112,17 +223,17 @@ button:hover {
 }
 
 .player-absolute.damaged::after {
-    content: '';
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    width: 32px;
-    height: 32px;
-    background-image: url('player.png');
-    background-size: cover;
-    border-radius: 50%;
-    z-index: 9;
-    animation: bomb-blink 0.8s infinite;
+  content: '';
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 32px;
+  height: 32px;
+  background-image: url('player.png');
+  background-size: cover;
+  border-radius: 50%;
+  z-index: 9;
+  animation: bomb-blink 0.8s infinite;
 }
 
 .bomb-absolute.blink {
@@ -131,8 +242,16 @@ button:hover {
 }
 
 @keyframes bomb-blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0.5; }
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0.5;
+  }
 }
 
 /* Chat */
@@ -172,7 +291,9 @@ button:hover {
   color: white;
 }
 
-.chat-input::placeholder { color: #aaa; }
+.chat-input::placeholder {
+  color: #aaa;
+}
 
 .chat-button {
   padding: 10px;
@@ -184,7 +305,9 @@ button:hover {
   align-self: flex-end;
 }
 
-.chat-button:hover { background: #e55a2b; }
+.chat-button:hover {
+  background: #e55a2b;
+}
 
 /* Sidebar */
 .sidebar {
@@ -247,7 +370,9 @@ button:hover {
   font-size: 1.1em;
 }
 
-.player-status { font-size: 1.2em; }
+.player-status {
+  font-size: 1.2em;
+}
 
 .player-stats-grid {
   display: grid;
@@ -289,30 +414,51 @@ button:hover {
   text-align: center;
 }
 
-.stat-item:nth-child(1) .stat-value { background: #e74c3c; }
-.stat-item:nth-child(2) .stat-value { background: #f39c12; }
-.stat-item:nth-child(3) .stat-value { background: #e67e22; }
-.stat-item:nth-child(4) .stat-value { background: #9b59b6; }
+.stat-item:nth-child(1) .stat-value {
+  background: #e74c3c;
+}
+
+.stat-item:nth-child(2) .stat-value {
+  background: #f39c12;
+}
+
+.stat-item:nth-child(3) .stat-value {
+  background: #e67e22;
+}
+
+.stat-item:nth-child(4) .stat-value {
+  background: #9b59b6;
+}
 
 /* Responsive */
 @media (max-width: 1200px) {
-  .sidebar { width: 240px; }
-  .player-stats-grid { grid-template-columns: 1fr; }
+  .sidebar {
+    width: 240px;
+  }
+
+  .player-stats-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
-  .game-layout { flex-direction: column; }
+  .game-layout {
+    flex-direction: column;
+  }
+
   .sidebar {
     width: 100%;
     height: 200px;
     border-right: none;
     border-bottom: 3px solid #4a90e2;
   }
+
   .players-stats {
     flex-direction: row;
     overflow-x: auto;
     gap: 10px;
   }
+
   .player-stat {
     min-width: 200px;
     flex-shrink: 0;
@@ -320,28 +466,28 @@ button:hover {
 }
 
 #congratulations {
-    position: absolute;
-    top: 43%;
-    left: 48%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(10, 10, 10, 0.7); 
-    padding: 37px;
-    border-radius: 24px;
-    flex-direction: column;
-    align-items: center;
-    z-index: 1000; 
+  position: absolute;
+  top: 43%;
+  left: 48%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(10, 10, 10, 0.7);
+  padding: 37px;
+  border-radius: 24px;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1000;
 }
 
 #congratulations h1 {
-    text-align: center;
-    font-size: 20px; 
-    margin: 0 0 10px; 
-    color: rgb(233, 93, 13);
+  text-align: center;
+  font-size: 20px;
+  margin: 0 0 10px;
+  color: rgb(233, 93, 13);
 }
 
 #congratulations p {
-    text-align: center;
-    font-size: 18px;
-    margin: 10px 0; 
-    color: white; 
+  text-align: center;
+  font-size: 18px;
+  margin: 10px 0;
+  color: white;
 }

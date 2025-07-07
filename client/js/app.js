@@ -162,6 +162,7 @@ export function App(gameState, players = [], seconds = {}) {
         bombElements.push(bombElement);
     });
     // Créer les éléments joueurs avec positionnement absolu
+    let count = 1
    playerPositions.forEach(player => {
     const isCurrentUser = player.username === globalUsername;
 
@@ -169,7 +170,7 @@ export function App(gameState, players = [], seconds = {}) {
     const isDamaged = player.isDamaged || false;
 
     const playerElement = h("div", {
-        class: `player-absolute ${player.direction}${isDamaged ? ' damaged' : ''}`,
+        class: `player-absolute ${player.direction} player-${count} ${isDamaged ? ' damaged' : ''}`,
         style: `
             position: absolute;
             width: 32px;
@@ -193,6 +194,7 @@ export function App(gameState, players = [], seconds = {}) {
     });
 
     playerElements.push(playerElement);
+    count++
 });
 
     const mapContainer = h("div", {
