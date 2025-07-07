@@ -252,7 +252,7 @@ export class GenerateMapGame {
                     this.explodeBomb(gridR, gridC, playerId);
                     this.handleExplosionDamage(gridR, gridC, playerId)
                     room.handleBombExplosion()
-                }, 7000);
+                }, 3000);
 
                 setTimeout(() => {
                     this.explodeBomb(gridR, gridC, playerId);
@@ -260,7 +260,7 @@ export class GenerateMapGame {
                         this.cleanupCuttedTiles()
                     }
                     room.handleBombExplosion()
-                }, 7700);
+                }, 3700);
 
                 return true
             }

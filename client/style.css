@@ -216,7 +216,6 @@ button:hover {
 
 /* Effets */
 .player-absolute.damaged {
-  filter: hue-rotate(0deg) saturate(2) brightness(1.2);
   background-color: rgba(255, 0, 0, 0.3);
   animation: damage-flash 1.5s ease-in-out;
   box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);

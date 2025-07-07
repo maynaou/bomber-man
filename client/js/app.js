@@ -86,12 +86,12 @@ export function App(gameState, players = [], seconds = {}) {
 
   function handle_win(playerPositions) {
     return h("div",{id:"congratulations"},[
-       h("h1",{},"Congratulations!"),
+       h("h1",{},"🎉 Congratulations! 🎉"),
        h("p",{id : "congratulations-message"},`${playerPositions[0].username} Win The Game`),
         h("button", {
           type: "submit",
           onclick: () => renderAppFn(() => App("login"), mount),
-        }, "Rejoindre la partie")
+        }, "Restart The Game")
     ])
   }
 
