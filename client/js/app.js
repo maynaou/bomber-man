@@ -74,22 +74,13 @@ export function App(gameState, players = [], seconds = {}) {
       h("input", {
         class: "chat-input",
         placeholder: "Entrez votre message...",  
-        // value: chatMessages,
-          // onInput: (e) => {
-          //   setChatMessages(e.target.value);
-          // },
           onKeyPress: (e) => {
             if (e.key === 'Enter') {
               handlechat(username, e.target.value);
               e.target.value = "";              
-              //  setChatMessages("");
             }
           }
            }),
-      h("button", {class: "chat-button", onclick: () => {
-      handlechat(username, chatMessages);
-      setChatMessages("");
-      }}, "Envoyer")
     ]);
 }
 
@@ -338,7 +329,6 @@ export function App(gameState, players = [], seconds = {}) {
         ])
       ]),
        chat()
-
     ]);
   }
 
@@ -372,7 +362,6 @@ export function App(gameState, players = [], seconds = {}) {
         ])
       ]),
       chat()
-
     ]);
   }
 
@@ -388,10 +377,10 @@ export function App(gameState, players = [], seconds = {}) {
     if (playerPositions.length === 1) {
 
     return h("div", { class: "game-container", onkeydown: (e) => { handlemoveplayer(e) } }, [
-      handle_win(playerPositions),
       playerssidebar(playerPositions), 
       mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs,playerPositions) : h("div", {}, "Chargement de la carte..."),
-      chat()
+      chat(),
+      handle_win(playerPositions),
     ]);
     }
     // const lives = seconds.map?.loves || 3;

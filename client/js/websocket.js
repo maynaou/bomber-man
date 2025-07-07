@@ -9,7 +9,7 @@ export let historychat = [];
 let socket;
 let currentUsername = null;
 export function connectToWebSocket(username) {
-    socket = new WebSocket('ws://localhost:8070');
+    socket = new WebSocket(`ws://${window.location.hostname}:8070`);
     currentUsername = username
     socket.onopen = () => {
         socket.send(JSON.stringify({ type: 'join', username: username }));

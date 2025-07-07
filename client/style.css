@@ -159,6 +159,7 @@ button:hover {
   overflow-y: auto;
   color: #ddd;
   font-size: 14px;
+  text-align: left;
 }
 
 .chat-input {
