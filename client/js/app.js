@@ -183,13 +183,15 @@ export function App(gameState, players = [], seconds = {}) {
         'data-grid-c': player.c,
         'data-username': player.username,
         'data-damaged': isDamaged,
-        onkeydown: isCurrentUser ? (e) => {
-          e.preventDefault();
-          handlemoveplayer(e, globalUsername, player.pixelX, player.pixelY);
-          if (!isMoving) { // Démarrer la boucle de jeu si ce n'est pas déjà en mouvement
-              gameLoop();
-          }
-        } : null,
+          onkeydown: isCurrentUser ? (e) => {
+        e.preventDefault();
+        handlemoveplayer(e, globalUsername, player.pixelX, player.pixelY);
+          } : null,
+    
+        onkeyup: isCurrentUser ? (e) => {
+        e.preventDefault();
+        handlemoveplayer(e, globalUsername, player.pixelX, player.pixelY);
+         } : null,
         tabindex: isCurrentUser ? 0 : -1,
         id: `player-controlled-${player.username}`,
       });
@@ -379,7 +381,7 @@ export function App(gameState, players = [], seconds = {}) {
     const playerPositions = seconds.map?.playerPositions || [];
     if (playerPositions.length === 1) {
 
-      return h("div", { class: "game-container", onkeydown: (e) => { handlemoveplayer(e) } }, [
+      return h("div", { class: "game-container" }, [
         playerssidebar(playerPositions),
         mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs, playerPositions) : h("div", {}, "Chargement de la carte..."),
         chat(),
@@ -387,7 +389,19 @@ export function App(gameState, players = [], seconds = {}) {
       ]);
     }
     // const lives = seconds.map?.loves || 3;
-    return h("div", { class: "game-container", onkeydown: (e) => { handlemoveplayer(e) } }, [
+    return h("div", { class: "game-container", onkeydown: (e) => {
+        const currentPlayer = playerPositions.find(p => p.username === globalUsername);
+        if (currentPlayer) {
+            handlemoveplayer(e, globalUsername, currentPlayer.pixelX, currentPlayer.pixelY);
+        }
+    },
+    
+    onkeyup: (e) => {
+        const currentPlayer = playerPositions.find(p => p.username === globalUsername);
+        if (currentPlayer) {
+            handlemoveplayer(e, globalUsername, currentPlayer.pixelX, currentPlayer.pixelY);
+        }
+    },tabindex: 0}, [
       playerssidebar(playerPositions),
       mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs, playerPositions) : h("div", {}, "Chargement de la carte..."),
       chat()

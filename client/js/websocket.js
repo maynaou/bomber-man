@@ -21,54 +21,82 @@ export function connectToWebSocket(username) {
     };
 }
 
+// Variables pour le mouvement fluide
 let currentDirection = null; 
-let currentPixelX = null
-let currentPixelY = null
-let usernamee = null
+let currentPixelX = null;
+let currentPixelY = null;
+let usernamee = null;
+let keysPressed = new Set();
+export let isMoving = false;
+export let animationFrameId;
 
-export let isMoving = false
-
-
-
-// ✅ MODIFICATION: Envoyer les coordonnées en pixels
-export function handlemoveplayer(event, username, currentPixelX, currentPixelY) {
-
-    console.log("----");
-    
-    currentDirection = event.key
+// Fonction pour démarrer le mouvement
+export function handlemoveplayer(event, username, pixelX, pixelY) {
     let directionValue = event.key;
     if (event.code) {
         directionValue = event.code;
     }
 
-    currentPixelX = currentPixelX
-    currentPixelY = currentPixelY
+    // Mise à jour des variables globales
+    usernamee = username;
+    currentPixelX = pixelX;
+    currentPixelY = pixelY;
 
-    usernamee = username
-
-    // isMoving = false
-        socket.send(JSON.stringify({
-        type: 'move',
-        direction: directionValue,
-        username: username,
-        currentPixelX: currentPixelX,
-        currentPixelY: currentPixelY
-    }));
-    // Envoyer les coordonnées en pixels au serveur
-   
-    // gameLoop()
+    if (event.type === 'keydown') {
+        keysPressed.add(directionValue);
+        
+        // Démarrer le mouvement si pas déjà en cours
+        if (!isMoving) {
+            currentDirection = directionValue;
+            startMovement();
+        } else if (currentDirection !== directionValue) {
+            // Changer de direction
+            currentDirection = directionValue;
+        }
+    } else if (event.type === 'keyup') {
+        keysPressed.delete(directionValue);
+        
+        // Arrêter le mouvement si c'était la direction actuelle et plus de touches pressées
+        if (currentDirection === directionValue && keysPressed.size === 0) {
+            stopMovement();
+        }
+    }
 }
 
-export let animationFrameId;
+function startMovement() {
+    if (isMoving) return;
+    isMoving = true;
+    gameLoop();
+}
 
+function stopMovement() {
+    isMoving = false;
+    currentDirection = null;
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+}
 
-export function gameLoop() {   
-    isMoving = true     
-    if (!isMoving) return; 
-    handlemoveplayer({ key: currentDirection }, usernamee, currentPixelX, currentPixelY);
-    // console.log("----------------------------");
-    
-    animationFrameId = requestAnimationFrame(gameLoop); // Appel récursif pour la prochaine frame
+// Boucle de jeu améliorée avec requestAnimationFrame
+export function gameLoop() {
+    if (!isMoving || !currentDirection) {
+        return;
+    }
+
+    // Envoyer la commande de mouvement au serveur
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+            type: 'move',
+            direction: currentDirection,
+            username: usernamee,
+            currentPixelX: currentPixelX,
+            currentPixelY: currentPixelY
+        }));
+    }
+
+    // Continuer la boucle
+    animationFrameId = requestAnimationFrame(gameLoop);
 }
 
 function handleMessage(message) {
