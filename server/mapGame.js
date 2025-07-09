@@ -31,8 +31,8 @@ export class GenerateMapGame {
                 direction: 'front',
                 isAlive: true,
                 isDamaged: false,
-                canPassThrough : false,
-                lastBombCell:null,
+                canPassThrough: false,
+                lastBombCell: null,
                 stats: {
                     lives: 3,
                     speed: 4,
@@ -79,11 +79,6 @@ export class GenerateMapGame {
         const player = this.playerPositions.find(p => p.id === playerId);
         if (!player) return null;
 
-        // this.player = player
-        // if (player) {
-        //     this.cleanupCuttedTiles()
-        // }
-
         if (direction === 'Space' || direction === ' ') {
             const hasBomb = this.placeBombs(playerId);
             if (hasBomb) {
@@ -95,8 +90,6 @@ export class GenerateMapGame {
 
                     return {
                         success: true,
-                        type: 'place_bombs',
-                        action: 'bomb'
                     };
                 }
             }
@@ -147,8 +140,6 @@ export class GenerateMapGame {
 
         return {
             success: true,
-            type: 'game_start',
-            action: 'move'
         };
     }
 
@@ -170,14 +161,10 @@ export class GenerateMapGame {
                 if (cellType === 'wall' || cellType === 'block') {
                     return false;
                 }
-               
-                
 
                 const bombHere = this.activeBombs.find(b => b.r === r && b.c === c);
                 if (bombHere) {
-                    // console.log("canPassThrough : ", player.canPassThrough);
-
-                    if ( player.canPassThrough) {
+                    if (player.canPassThrough) {
                         continue; // Permettre le passage
                     } else {
                         return false; // Bloquer
@@ -196,8 +183,6 @@ export class GenerateMapGame {
             b => b.r === player.lastBombCell.r && b.c === player.lastBombCell.c
         );
 
-         console.log("------------------------------------------",bomb);
-
         if (!bomb) return;
 
         const bombPixelX = bomb.c * this.cellSize;
@@ -210,8 +195,6 @@ export class GenerateMapGame {
             player.pixelY + this.cellSize > bombPixelY;
 
         if (!insideBombCell) {
-            console.log("------------------------------------------");
-            // bomb.canPassThrough = false;
             player.canPassThrough = false
         }
     }
@@ -241,10 +224,9 @@ export class GenerateMapGame {
                     pixelY: gridR * this.cellSize
                 });
 
-               
-                this.playerPositions.forEach((player)=> {
-                     player.lastBombCell = { r: gridR, c: gridC },
-                     player.canPassThrough = true
+                this.playerPositions.forEach((player) => {
+                    player.lastBombCell = { r: gridR, c: gridC },
+                        player.canPassThrough = true
                 })
                 //console.log(" bomb placd legth ==> ", this.activeBombs.length, "statz : ", this.player.stats.maxBombs);
                 setTimeout(() => {
@@ -379,17 +361,16 @@ export class GenerateMapGame {
             room.resetGame()
         }
 
-        // Si il reste plus d'un joueur, le jeu continue
-        else {
-            // console.log(`Jeu en cours... ${alivePlayers.length} joueurs restants`);
-        }
+        // // Si il reste plus d'un joueur, le jeu continue
+        // else {
+        //     console.log(`Jeu en cours... ${alivePlayers.length} joueurs restants`);
+        // }
     }
 
     explodeBomb(r, c, playerId) {
         this.activeBombs = this.activeBombs.filter(b => !(b.r === r && b.c === c));
         const player = this.playerPositions.find(p => p.id === playerId);
         const flameRange = player ? player.stats.flameRange : 1;
-
 
         // Fonction pour générer un bonus aléatoire
         const generateRandomBonus = () => {
@@ -422,7 +403,6 @@ export class GenerateMapGame {
 
                 if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
                     const target = this.mapData[nr][nc];
-
 
                     if (target === 'wall') break
                     if (target === 'block') {

@@ -1,7 +1,6 @@
 import { Room } from "./room.js"
 import http from "http"
 import { WebSocketServer } from "ws"
-import { GenerateMapGame } from "./mapGame.js"
 // const wsSocket = require("ws")
 
 const server = http.createServer((req, res) => {
@@ -41,7 +40,7 @@ wss.on('connection', (ws) => {
     });
 
     ws.on('close', () => {
-    let disconnectedPlayerId = null;
+        let disconnectedPlayerId = null;
 
         for (let [key, player] of room.players.entries()) {
             if (player.ws === ws) {
@@ -51,35 +50,35 @@ wss.on('connection', (ws) => {
             }
         }
 
-         if (room.gameState === 'playing' && disconnectedPlayerId && room.gameMap) {
-              room.gameMap.playerPositions = room.gameMap.playerPositions.filter(
-            player => player.id !== disconnectedPlayerId
-         );
-        
-        // Nettoyer les bombes du joueur déconnecté
-          room.gameMap.activeBombs = room.gameMap.activeBombs.filter(
-            bomb => bomb.playerId !== disconnectedPlayerId
-          );
-        
-        // Vérifier la fin du jeu
-          room.gameMap.checkGameEnd();
-        
-        // Notifier les autres joueurs
-    }else if (room.players.size === 1 && room.gameStart) {
-                room.clearWaitingTimer()
-                room.gameState = "waiting"
-                room.waitingTimer = null;
-                room.countdownTimer = null;
+        if (room.gameState === 'playing' && disconnectedPlayerId && room.gameMap) {
+            room.gameMap.playerPositions = room.gameMap.playerPositions.filter(
+                player => player.id !== disconnectedPlayerId
+            );
 
-                room.broadcast({
-                    type: "lobby",
-                    players: Array.from(room.players.values()).map(p => ({
-                        id: p.id,
-                        username: p.username,
+            // Nettoyer les bombes du joueur déconnecté
+            room.gameMap.activeBombs = room.gameMap.activeBombs.filter(
+                bomb => bomb.playerId !== disconnectedPlayerId
+            );
 
-                    })),
-                    seconds: 'waiting for players'
-                });
+            // Vérifier la fin du jeu
+            room.gameMap.checkGameEnd();
+
+            // Notifier les autres joueurs
+        } else if (room.players.size === 1 && room.gameStart) {
+            room.clearWaitingTimer()
+            room.gameState = "waiting"
+            room.waitingTimer = null;
+            room.countdownTimer = null;
+
+            room.broadcast({
+                type: "lobby",
+                players: Array.from(room.players.values()).map(p => ({
+                    id: p.id,
+                    username: p.username,
+
+                })),
+                seconds: 'waiting for players'
+            });
 
         }
         // console.log(playerConnections);

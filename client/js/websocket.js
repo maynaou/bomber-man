@@ -23,7 +23,6 @@ export function connectToWebSocket(username) {
 
 // ✅ MODIFICATION: Envoyer les coordonnées en pixels
 export function handlemoveplayer(event, username, currentPixelX, currentPixelY) {
-    // console.log("username : ",event.key,username,currentPixelX,currentPixelY);
 
     let directionValue = event.key;
     if (event.code) {
@@ -55,7 +54,7 @@ function handleMessage(message) {
         case 'game_start':
             renderAppFn(() => App("game_start", message.players, message), mount);
             // ✅ CORRECTION: Restaurer le focus après le re-
-              setTimeout(() => {
+            setTimeout(() => {
                 const player = document.getElementById(`player-controlled-${currentUsername}`);
                 if (player) {
                     player.focus();
@@ -63,7 +62,7 @@ function handleMessage(message) {
             }, 100);
             break;
         case 'chat':
-        historychat.push(message)
+            historychat.push(message)
             elementRef.refchat.ref.appendChild(
                 createElement(h("div", { class: "chat-message" }, message.username, ": ", message.message))
             )
@@ -95,3 +94,22 @@ export function handlechat(username, message) {
         message: message
     }));
 }
+
+let frameCount = 0;
+let lastFrameTime = performance.now();
+
+function monitorFrameRate() {
+    const now = performance.now();
+    frameCount++;
+    
+    if (now - lastFrameTime >= 1000) {
+        console.log(`FPS: ${frameCount}`);
+        frameCount = 0;
+        lastFrameTime = now;
+    }
+    
+    requestAnimationFrame(monitorFrameRate);
+}
+
+// Démarrer le monitoring
+monitorFrameRate();

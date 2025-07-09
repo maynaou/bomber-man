@@ -1,15 +1,12 @@
 // app.js
-// import { request } from "undici-types";
 import { useState } from "../framework/state.js";
-import { h,elementRef } from "../framework/dom.js";
+import { h, elementRef } from "../framework/dom.js";
 import { renderAppFn } from "../framework/state.js";
-import { connectToWebSocket, handlemoveplayer, handlechat, historychat } from "./websocket.js"
+import { connectToWebSocket, handlemoveplayer, handlechat} from "./websocket.js"
 
 let globalUsername = null; // ✅ AJOUT: Variable globale pour le nom d'utilisateur
 
 export function App(gameState, players = [], seconds = {}) {
-
-// const [chatMessages, setChatMessages] = useState("");
 
   const [username, setUsername] = useState("");
   function handleJoinGame(username) {
@@ -21,41 +18,41 @@ export function App(gameState, players = [], seconds = {}) {
     }
   }
 
- function playerssidebar(playerPositions = []) {
+  function playerssidebar(playerPositions = []) {
     return h("div", { class: "sidebar" }, [
       h("h3", { class: "sidebar-title" }, "🎮 Joueurs"),
       h("div", { class: "players-stats" },
         playerPositions.map(player => {
           const isCurrentUser = player.username === globalUsername;
           const isAlive = player.isAlive !== false;
-          
-          return h("div", { 
-            class: `player-stat ${isCurrentUser ? 'current-player' : ''} ${!isAlive ? 'dead-player' : ''}` 
+
+          return h("div", {
+            class: `player-stat ${isCurrentUser ? 'current-player' : ''} ${!isAlive ? 'dead-player' : ''}`
           }, [
             h("div", { class: "player-header" }, [
               h("span", { class: "player-name" }, player.username || "Joueur"),
               h("span", { class: "player-status" }, isCurrentUser ? "👤" : (isAlive ? "✅" : "💀"))
             ]),
-            
+
             h("div", { class: "player-stats-grid" }, [
               h("div", { class: "stat-item" }, [
                 h("span", { class: "stat-icon" }, "❤️"),
                 h("span", { class: "stat-label" }, "lives:"),
                 h("span", { class: "stat-value" }, `${player.stats.lives}`)
               ]),
-              
+
               h("div", { class: "stat-item" }, [
                 h("span", { class: "stat-icon" }, "🏃"),
                 h("span", { class: "stat-label" }, "Vitesse:"),
                 h("span", { class: "stat-value" }, `${player.stats.speed}`)
               ]),
-              
+
               h("div", { class: "stat-item" }, [
                 h("span", { class: "stat-icon" }, "💥"),
                 h("span", { class: "stat-label" }, "Flames:"),
                 h("span", { class: "stat-value" }, `${player.stats.flameRange}`)
               ]),
-              
+
               h("div", { class: "stat-item" }, [
                 h("span", { class: "stat-icon" }, "💣"),
                 h("span", { class: "stat-label" }, "Power-ups:"),
@@ -68,30 +65,30 @@ export function App(gameState, players = [], seconds = {}) {
     ]);
   }
 
-  function chat(){
-  return h("div", { class: "chat-container" },
-    [h("div", {class: "chat-messages", ref: elementRef.refchat}, ),
+  function chat() {
+    return h("div", { class: "chat-container" },
+      [h("div", { class: "chat-messages", ref: elementRef.refchat },),
       h("input", {
         class: "chat-input",
-        placeholder: "Entrez votre message...",  
-          onKeyPress: (e) => {
-            if (e.key === 'Enter') {
-              handlechat(username, e.target.value);
-              e.target.value = "";              
-            }
+        placeholder: "Entrez votre message...",
+        onKeyPress: (e) => {
+          if (e.key === 'Enter') {
+            handlechat(username, e.target.value);
+            e.target.value = "";
           }
-           }),
-    ]);
-}
+        }
+      }),
+      ]);
+  }
 
   function handle_win(playerPositions) {
-    return h("div",{id:"congratulations"},[
-       h("h1",{},"🎉 Congratulations! 🎉"),
-       h("p",{id : "congratulations-message"},`${playerPositions[0].username} Win The Game`),
-        h("button", {
-          type: "submit",
-          onclick: () => renderAppFn(() => App("login"), mount),
-        }, "Restart The Game")
+    return h("div", { id: "congratulations" }, [
+      h("h1", {}, "🎉 Congratulations! 🎉"),
+      h("p", { id: "congratulations-message" }, `${playerPositions[0].username} Win The Game`),
+      h("button", {
+        type: "submit",
+        onclick: () => renderAppFn(() => App("login"), mount),
+      }, "Restart The Game")
     ])
   }
 
@@ -107,16 +104,16 @@ export function App(gameState, players = [], seconds = {}) {
         let cellClass = 'cell';
 
         switch (cellType) {
-          case 'speed' :
-              cellClass += ' speed';
+          case 'speed':
+            cellClass += ' speed';
 
-          break
-          case 'flame' :
-              cellClass += ' flame';
-          break
-          case 'powerUp' :
-              cellClass += ' powerUp';
-          break
+            break
+          case 'flame':
+            cellClass += ' flame';
+            break
+          case 'powerUp':
+            cellClass += ' powerUp';
+            break
           case 'wall':
             cellClass += ' wall';
             break;
@@ -128,7 +125,7 @@ export function App(gameState, players = [], seconds = {}) {
             break;
           case 'empty':
           default:
-           
+
             break;
         }
 
@@ -141,12 +138,12 @@ export function App(gameState, players = [], seconds = {}) {
         mapCells.push(h("div", cellprops));
       }
     }
-   // console.log("username : ", username);
-  activeBombs.forEach(bomb => {
-        const bombElement = h("div", {
-            class: "bomb-absolute blink",
-            id: `${bomb.playerId}`,
-            style: `
+    // console.log("username : ", username);
+    activeBombs.forEach(bomb => {
+      const bombElement = h("div", {
+        class: "bomb-absolute blink",
+        id: `${bomb.playerId}`,
+        style: `
                 position: absolute;
                 width: 40px;
                 height: 40px;
@@ -155,21 +152,21 @@ export function App(gameState, players = [], seconds = {}) {
                 background-image: url('bomb.png');
                 background-size: cover;
             `,
-            'data-pixel-x': bomb.pixelX,
-            'data-pixel-y': bomb.pixelY,
-        });
+        'data-pixel-x': bomb.pixelX,
+        'data-pixel-y': bomb.pixelY,
+      });
 
-        bombElements.push(bombElement);
+      bombElements.push(bombElement);
     });
     // Créer les éléments joueurs avec positionnement absolu
     let count = 1
-   playerPositions.forEach(player => {
-    const isCurrentUser = player.username === globalUsername;
+    playerPositions.forEach(player => {
+      const isCurrentUser = player.username === globalUsername;
 
-    // ✅ AJOUT: Vérifier si le joueur est endommagé
-    const isDamaged = player.isDamaged || false;
+      // ✅ AJOUT: Vérifier si le joueur est endommagé
+      const isDamaged = player.isDamaged || false;
 
-    const playerElement = h("div", {
+      const playerElement = h("div", {
         class: `player-absolute ${player.direction} player-${count} ${isDamaged ? ' damaged' : ''}`,
         style: `
             position: absolute;
@@ -186,16 +183,16 @@ export function App(gameState, players = [], seconds = {}) {
         'data-username': player.username,
         'data-damaged': isDamaged,
         onkeydown: isCurrentUser ? (e) => {
-            e.preventDefault();
-            handlemoveplayer(e, globalUsername, player.pixelX, player.pixelY);
+          e.preventDefault();
+          handlemoveplayer(e, globalUsername, player.pixelX, player.pixelY);
         } : null,
         tabindex: isCurrentUser ? 0 : -1,
         id: `player-controlled-${player.username}`,
-    });
+      });
 
-    playerElements.push(playerElement);
-    count++
-});
+      playerElements.push(playerElement);
+      count++
+    });
 
     const mapContainer = h("div", {
       id: "map",
@@ -214,9 +211,9 @@ export function App(gameState, players = [], seconds = {}) {
           setTimeout(() => currentPlayer.focus(), 0);
         }
       }
-    }, [...mapCells,...playerElements,...bombElements]);
+    }, [...mapCells, ...playerElements, ...bombElements]);
 
-   setTimeout(() => {
+    setTimeout(() => {
       const currentPlayer = document.getElementById(`player-controlled-${globalUsername}`);
       if (currentPlayer) {
         currentPlayer.focus();
@@ -330,7 +327,7 @@ export function App(gameState, players = [], seconds = {}) {
           )
         ])
       ]),
-       chat()
+      chat()
     ]);
   }
 
@@ -378,21 +375,21 @@ export function App(gameState, players = [], seconds = {}) {
     const playerPositions = seconds.map?.playerPositions || [];
     if (playerPositions.length === 1) {
 
-    return h("div", { class: "game-container", onkeydown: (e) => { handlemoveplayer(e) } }, [
-      playerssidebar(playerPositions), 
-      mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs,playerPositions) : h("div", {}, "Chargement de la carte..."),
-      chat(),
-      handle_win(playerPositions),
-    ]);
+      return h("div", { class: "game-container", onkeydown: (e) => { handlemoveplayer(e) } }, [
+        playerssidebar(playerPositions),
+        mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs, playerPositions) : h("div", {}, "Chargement de la carte..."),
+        chat(),
+        handle_win(playerPositions),
+      ]);
     }
     // const lives = seconds.map?.loves || 3;
     return h("div", { class: "game-container", onkeydown: (e) => { handlemoveplayer(e) } }, [
-      playerssidebar(playerPositions), 
-      mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs,playerPositions) : h("div", {}, "Chargement de la carte..."),
+      playerssidebar(playerPositions),
+      mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs, playerPositions) : h("div", {}, "Chargement de la carte..."),
       chat()
     ]);
   }
-  
+
 
   // Default fallback
   return h("div", { class: "container" }, [

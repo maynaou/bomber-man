@@ -32,7 +32,7 @@ export class Room {
 
         return generateId;
     }
-    
+
     generatePlayerId() {
         return Math.random().toString(36).substr(2, 9);
     }
@@ -52,7 +52,7 @@ export class Room {
         }
     }
 
-    startWaitingTimer() {        
+    startWaitingTimer() {
         if (this.waitingTimer) return
 
         let timer = 20;
@@ -79,14 +79,14 @@ export class Room {
     }
 
     resetGame() {
-    this.players.clear();
-    this.gameState = "waiting";
-    this.waitingTimer = null;
-    this.countdownTimer = null;
-    this.chathistory = [];
-    this.player = null;
-    this.gameStart = true;
-}
+        this.players.clear();
+        this.gameState = "waiting";
+        this.waitingTimer = null;
+        this.countdownTimer = null;
+        this.chathistory = [];
+        this.player = null;
+        this.gameStart = true;
+    }
 
     startCountdown() {
         if (this.gameState !== 'waiting') return
@@ -155,41 +155,24 @@ export class Room {
         }
     }
 
-handlePlayerMove(data) {
-    Array.from(this.players.values()).forEach((player) => {
-        if (data.username === player.username) {
-            const moveResult = this.gameMap.movePlayerByPixels(
-                data.currentPixelX,
-                data.currentPixelY,
-                data.direction,
-                player.id
-            );
+    handlePlayerMove(data) {
+        Array.from(this.players.values()).forEach((player) => {
+            if (data.username === player.username) {
+                const moveResult = this.gameMap.movePlayerByPixels(
+                    data.currentPixelX,
+                    data.currentPixelY,
+                    data.direction,
+                    player.id
+                );
 
-            if (moveResult && moveResult.success) {
-                if (moveResult.action === 'bomb' || moveResult.action === 'move') {
-                    // ✅ CORRECTION: Utiliser la liste complète des bombes actives
-                    this.broadcast({
-                        type: moveResult.type,
-                        playerId: player.id,
-                        players: Array.from(this.players.values()).map(p => ({
-                            id: p.id,
-                            username: p.username,
-                        })),
-                        map: {
-                            data: this.gameMap.mapData,
-                            rows: this.gameMap.rows,
-                            cols: this.gameMap.cols,
-                            activeBombs: this.gameMap.activeBombs,
-                            playerPositions: this.gameMap.playerPositions
-                        }
-                    });
-                } 
+                if (moveResult && moveResult.success) {
+                   this.handleBombExplosion()
+                }
             }
-        }
-    })
-}
+        })
+    }
 
-handleBombExplosion() {
+    handleBombExplosion() {
         this.broadcast({
             type: 'game_start',
             players: Array.from(this.players.values()).map(p => ({
@@ -233,7 +216,7 @@ handleBombExplosion() {
             message: data.message
         });
     }
-    
+
     broadcastChatHistory() {
         this.broadcast({
             type: 'chat_history',
