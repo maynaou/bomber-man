@@ -26,30 +26,6 @@ export function useState(initialValue) {
   hookIndex++; // Move to the next hook index
   return [value, setState];
 }
-//==================================================
-// export function useEffect(callback, deps) {
-//   const currentIndex = effectIndex;
-//   const oldDeps = effectStates[currentIndex];
-
-//   let hasChanged = true;
-//   if (oldDeps) {
-//     hasChanged = deps.some((dep, i) => dep !== oldDeps[i]);
-//   }
-
-//   if (hasChanged) {
-//     // Run cleanup if it exists
-//     if (cleanupFns[currentIndex]) {
-//       cleanupFns[currentIndex]();
-//     }
-
-//     const cleanup = callback();
-//     cleanupFns[currentIndex] = typeof cleanup === 'function' ? cleanup : undefined;
-//     effectStates[currentIndex] = deps;
-//   }
-
-//   effectIndex++;
-// }
-//==================================================
 
 let rootEl;
 let appFn;
