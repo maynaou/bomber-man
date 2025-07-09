@@ -2,7 +2,7 @@
 import { useState } from "../framework/state.js";
 import { h, elementRef } from "../framework/dom.js";
 import { renderAppFn } from "../framework/state.js";
-import { connectToWebSocket, handlemoveplayer, handlechat} from "./websocket.js"
+import { connectToWebSocket, handlemoveplayer, handlechat,gameLoop,isMoving,animationFrameId} from "./websocket.js"
 
 let globalUsername = null; // ✅ AJOUT: Variable globale pour le nom d'utilisateur
 
@@ -82,6 +82,7 @@ export function App(gameState, players = [], seconds = {}) {
   }
 
   function handle_win(playerPositions) {
+      cancelAnimationFrame(animationFrameId)
     return h("div", { id: "congratulations" }, [
       h("h1", {}, "🎉 Congratulations! 🎉"),
       h("p", { id: "congratulations-message" }, `${playerPositions[0].username} Win The Game`),
@@ -185,6 +186,9 @@ export function App(gameState, players = [], seconds = {}) {
         onkeydown: isCurrentUser ? (e) => {
           e.preventDefault();
           handlemoveplayer(e, globalUsername, player.pixelX, player.pixelY);
+          if (!isMoving) { // Démarrer la boucle de jeu si ce n'est pas déjà en mouvement
+              gameLoop();
+          }
         } : null,
         tabindex: isCurrentUser ? 0 : -1,
         id: `player-controlled-${player.username}`,

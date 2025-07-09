@@ -107,7 +107,6 @@ export class Room {
             if (timer < 0) {
                 this.clearCountDown()
                 this.startGame();
-
                 this.gameStart = false
             }
 
@@ -170,7 +169,15 @@ export class Room {
                 }
             }
         })
+        // requestAnimationFrame(this.handlePlayerMove)
+        // this.gameLoop();
     }
+
+    // gameLoop() {
+    // // Update game state
+    // // Render
+    // requestAnimationFrame(() => this.gameLoop());
+    // }
 
     handleBombExplosion() {
         this.broadcast({

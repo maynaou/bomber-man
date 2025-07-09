@@ -21,22 +21,54 @@ export function connectToWebSocket(username) {
     };
 }
 
+let currentDirection = null; 
+let currentPixelX = null
+let currentPixelY = null
+let usernamee = null
+
+export let isMoving = false
+
+
+
 // ✅ MODIFICATION: Envoyer les coordonnées en pixels
 export function handlemoveplayer(event, username, currentPixelX, currentPixelY) {
 
+    console.log("----");
+    
+    currentDirection = event.key
     let directionValue = event.key;
     if (event.code) {
         directionValue = event.code;
     }
 
-    // Envoyer les coordonnées en pixels au serveur
-    socket.send(JSON.stringify({
+    currentPixelX = currentPixelX
+    currentPixelY = currentPixelY
+
+    usernamee = username
+
+    // isMoving = false
+        socket.send(JSON.stringify({
         type: 'move',
         direction: directionValue,
         username: username,
         currentPixelX: currentPixelX,
         currentPixelY: currentPixelY
     }));
+    // Envoyer les coordonnées en pixels au serveur
+   
+    // gameLoop()
+}
+
+export let animationFrameId;
+
+
+export function gameLoop() {   
+    isMoving = true     
+    if (!isMoving) return; 
+    handlemoveplayer({ key: currentDirection }, usernamee, currentPixelX, currentPixelY);
+    // console.log("----------------------------");
+    
+    animationFrameId = requestAnimationFrame(gameLoop); // Appel récursif pour la prochaine frame
 }
 
 function handleMessage(message) {
@@ -95,21 +127,21 @@ export function handlechat(username, message) {
     }));
 }
 
-let frameCount = 0;
-let lastFrameTime = performance.now();
+// let frameCount = 0;
+// let lastFrameTime = performance.now();
 
-function monitorFrameRate() {
-    const now = performance.now();
-    frameCount++;
+// function monitorFrameRate() {
+//     const now = performance.now();
+//     frameCount++;
     
-    if (now - lastFrameTime >= 1000) {
-        console.log(`FPS: ${frameCount}`);
-        frameCount = 0;
-        lastFrameTime = now;
-    }
+//     if (now - lastFrameTime >= 1000) {
+//         console.log(`FPS: ${frameCount}`);
+//         frameCount = 0;
+//         lastFrameTime = now;
+//     }
     
-    requestAnimationFrame(monitorFrameRate);
-}
+//     requestAnimationFrame(monitorFrameRate);
+// }
 
-// Démarrer le monitoring
-monitorFrameRate();
+// // Démarrer le monitoring
+// monitorFrameRate();
