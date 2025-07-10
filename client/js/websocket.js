@@ -53,13 +53,6 @@ export function handlemoveplayer(event, username, pixelX, pixelY) {
             // Changer de direction
             currentDirection = directionValue;
         }
-    } else if (directionValue === ' ') {
-        keysPressed.delete(directionValue);
-        
-        // Arrêter le mouvement si c'était la direction actuelle et plus de touches pressées
-        if (currentDirection === directionValue && keysPressed.size === 0) {
-            stopMovement();
-        }
     }
 }
 
@@ -69,14 +62,14 @@ function startMovement() {
     gameLoop();
 }
 
-function stopMovement() {
-    isMoving = false;
-    currentDirection = null;
-    if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-    }
-}
+// function stopMovement() {
+//     isMoving = false;
+//     currentDirection = null;
+//     if (animationFrameId) {
+//         cancelAnimationFrame(animationFrameId);
+//         animationFrameId = null;
+//     }
+// }
 
 // Boucle de jeu améliorée avec requestAnimationFrame
 export function gameLoop() {

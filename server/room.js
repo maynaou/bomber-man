@@ -11,7 +11,6 @@ export class Room {
         this.player = null
         this.gameStart = true;
         this.playerCounter = 0
-
     }
 
     isUsernameExists(username) {
