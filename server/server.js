@@ -21,7 +21,10 @@ wss.on('connection', (ws) => {
                     if (room.players.size < 4 && room.gameStart) {
                         // console.log(data);
                         const playerId = room.addPlayer(data.username, ws)
-                        playerConnections.set(ws, playerId)
+                        if (playerId) {
+                            playerConnections.set(ws, playerId)
+                        }
+
                     }
 
                     break;

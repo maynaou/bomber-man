@@ -30,6 +30,7 @@ export class GenerateMapGame {
                 pixelY: cornerPositions[index].r * 40,
                 direction: 'front',
                 isAlive: true,
+                count: player.count,
                 isDamaged: false,
                 canPassThrough: false,
                 lastBombCell: null,

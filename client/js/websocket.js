@@ -53,7 +53,7 @@ export function handlemoveplayer(event, username, pixelX, pixelY) {
             // Changer de direction
             currentDirection = directionValue;
         }
-    } else if (event.type === 'keyup') {
+    } else if (directionValue === ' ') {
         keysPressed.delete(directionValue);
         
         // Arrêter le mouvement si c'était la direction actuelle et plus de touches pressées
@@ -100,8 +100,13 @@ export function gameLoop() {
 }
 
 function handleMessage(message) {
+    console.log("message :", message);
+    
     const mount = document.getElementById("app");
     switch (message.type) {
+        case 'login':
+            renderAppFn(() => App("login",[],message.message), mount);
+            break;
         case 'lobby':
             renderAppFn(() => App("lobby", message.players, message.seconds), mount);
             break;

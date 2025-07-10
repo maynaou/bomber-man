@@ -2,11 +2,14 @@
 import { useState } from "../framework/state.js";
 import { h, elementRef } from "../framework/dom.js";
 import { renderAppFn } from "../framework/state.js";
-import { connectToWebSocket, handlemoveplayer, handlechat,gameLoop,isMoving,animationFrameId} from "./websocket.js"
+import { connectToWebSocket, handlemoveplayer, handlechat,animationFrameId} from "./websocket.js"
 
 let globalUsername = null; // ✅ AJOUT: Variable globale pour le nom d'utilisateur
 
 export function App(gameState, players = [], seconds = {}) {
+   console.log("seconds : ",seconds);
+   
+
 
   const [username, setUsername] = useState("");
   function handleJoinGame(username) {
@@ -82,6 +85,7 @@ export function App(gameState, players = [], seconds = {}) {
   }
 
   function handle_win(playerPositions) {
+    
       cancelAnimationFrame(animationFrameId)
     return h("div", { id: "congratulations" }, [
       h("h1", {}, "🎉 Congratulations! 🎉"),
@@ -160,7 +164,7 @@ export function App(gameState, players = [], seconds = {}) {
       bombElements.push(bombElement);
     });
     // Créer les éléments joueurs avec positionnement absolu
-    let count = 1
+    //let count = 1
     playerPositions.forEach(player => {
       const isCurrentUser = player.username === globalUsername;
 
@@ -168,7 +172,7 @@ export function App(gameState, players = [], seconds = {}) {
       const isDamaged = player.isDamaged || false;
 
       const playerElement = h("div", {
-        class: `player-absolute ${player.direction} player-${count} ${isDamaged ? ' damaged' : ''}`,
+        class: `player-absolute ${player.direction} player-${player.count} ${isDamaged ? ' damaged' : ''}`,
         style: `
             position: absolute;
             width: 32px;
@@ -187,17 +191,12 @@ export function App(gameState, players = [], seconds = {}) {
         e.preventDefault();
         handlemoveplayer(e, globalUsername, player.pixelX, player.pixelY);
           } : null,
-    
-        onkeyup: isCurrentUser ? (e) => {
-        e.preventDefault();
-        handlemoveplayer(e, globalUsername, player.pixelX, player.pixelY);
-         } : null,
         tabindex: isCurrentUser ? 0 : -1,
         id: `player-controlled-${player.username}`,
       });
 
       playerElements.push(playerElement);
-      count++
+      //count++
     });
 
     const mapContainer = h("div", {
@@ -217,7 +216,7 @@ export function App(gameState, players = [], seconds = {}) {
           setTimeout(() => currentPlayer.focus(), 0);
         }
       }
-    }, [...mapCells, ...playerElements, ...bombElements]);
+    }, [...mapCells,...playerElements,...bombElements]);
 
     setTimeout(() => {
       const currentPlayer = document.getElementById(`player-controlled-${globalUsername}`);
@@ -251,6 +250,8 @@ export function App(gameState, players = [], seconds = {}) {
           required: true,
         }),
         h("br"),
+
+        h("p", {class: "timer-text"}, seconds),
         h("button", {
           type: "submit",
           onclick: () => handleJoinGame(username)
@@ -390,13 +391,6 @@ export function App(gameState, players = [], seconds = {}) {
     }
     // const lives = seconds.map?.loves || 3;
     return h("div", { class: "game-container", onkeydown: (e) => {
-        const currentPlayer = playerPositions.find(p => p.username === globalUsername);
-        if (currentPlayer) {
-            handlemoveplayer(e, globalUsername, currentPlayer.pixelX, currentPlayer.pixelY);
-        }
-    },
-    
-    onkeyup: (e) => {
         const currentPlayer = playerPositions.find(p => p.username === globalUsername);
         if (currentPlayer) {
             handlemoveplayer(e, globalUsername, currentPlayer.pixelX, currentPlayer.pixelY);

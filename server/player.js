@@ -1,10 +1,11 @@
 const lives = [];
 
 export class Player {
-  constructor(id, ws, username) {
+  constructor(id, ws, username,count) {
     this.id = id;
     this.ws = ws;
     this.username = username;
+    this.count = count;
 
     lives.push({ id: this.id, username: this.username, lives: 3 });
   }

@@ -9,14 +9,32 @@ export class Room {
         this.gameMap = null
         this.chathistory = [];
         this.player = null
-        this.gameStart = true
+        this.gameStart = true;
+        this.playerCounter = 0
 
     }
 
-    addPlayer(username, ws) {
+    isUsernameExists(username) {
+        return Array.from(this.players.values()).some(player =>
+            player.username.toLowerCase() === username.toLowerCase()
+        );
+    }
 
+    addPlayer(username, ws) {
+        let exist = this.isUsernameExists(username)
+
+        if (exist) {
+            this.sendToPlayer(ws,{
+                type: 'login',
+                message: 'username is aleady exist!',
+            });
+
+            return null
+        }
+        this.playerCounter++;
+        const playerNumber = this.playerCounter;
         const generateId = this.generatePlayerId()
-        this.player = new Player(generateId, ws, username)
+        this.player = new Player(generateId, ws, username, playerNumber)
         this.players.set(generateId, this.player)
         this.palyerJoin()
 
@@ -165,7 +183,7 @@ export class Room {
                 );
 
                 if (moveResult && moveResult.success) {
-                   this.handleBombExplosion()
+                    this.handleBombExplosion()
                 }
             }
         })
@@ -196,20 +214,30 @@ export class Room {
         });
     }
 
+     sendToPlayer(ws, message) {
+        if (ws.readyState === 1) { // WebSocket.OPEN = 1
+            try {
+                ws.send(JSON.stringify(message));
+            } catch (error) {
+                console.error('Error sending message to player:', error);
+            }
+        }
+    }
+
     broadcast(message) {
         const messageStr = JSON.stringify(message);
-        this.players.forEach(player => {
-            if (player.ws.readyState === 1) { // WebSocket.OPEN = 1
-                try {
-                    player.ws.send(messageStr);
-                } catch (error) {
-                    console.error('Error sending message to player:', error);
+
+            this.players.forEach(player => {
+                if (player.ws.readyState === 1) { // WebSocket.OPEN = 1
+                    try {
+                        player.ws.send(messageStr);
+                    } catch (error) {
+                        console.error('Error sending message to player:', error);
+                    }
+
                 }
 
-            }
-
-        });
-
+            });
     }
 
     handleChat(data) {
