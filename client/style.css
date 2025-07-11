@@ -144,27 +144,21 @@ button:hover {
 }
 
 .player-absolute.front.player-2 {
-  background-image: url('wall-front.png');
-  filter: saturate(30);
+  background-image: url('wall-front-1.png');
 
 }
 
 .player-absolute.back.player-2 {
-  background-image: url('wall-back.png');
-  filter: saturate(30);
+  background-image: url('wall-back-1.png');
 }
 
 .player-absolute.left.player-2 {
-  background-image: url('wall-left.png');
-  filter: saturate(30);
+  background-image: url('wall-left-1.png');
 
 }
 
 .player-absolute.right.player-2 {
-  background-image: url('wall-right.png');
-  filter: saturate(30);
-
-
+  background-image: url('wall-right-1.png');
 }
 
 .player-absolute.front.player-3 {
@@ -220,30 +214,15 @@ button:hover {
 
 
 /* Effets */
+
 .player-absolute.damaged {
-  background-color: rgba(255, 0, 0, 0.3);
+  filter: hue-rotate(330deg) saturate(1000%);
   animation: damage-flash 1.5s ease-in-out;
-  box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+  box-shadow: 0 0 20px rgba(236, 32, 5, 0.8);
+  animation: bomb-blink 0.8s infinite
 }
 
-.player-absolute.damaged::after {
-  content: '';
-  position: absolute;
-  bottom: 0px;
-  right: 0px;
-  width: 32px;
-  height: 32px;
-  background-image: url('player.png');
-  background-size: cover;
-  border-radius: 50%;
-  z-index: 9;
-  animation: bomb-blink 0.8s infinite;
-}
 
-.bomb-absolute.blink {
-  animation: bomb-blink 0.8s infinite;
-  border-radius: 50%;
-}
 
 @keyframes bomb-blink {
 
