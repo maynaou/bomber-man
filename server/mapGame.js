@@ -359,7 +359,8 @@ export class GenerateMapGame {
 
         // Si il ne reste aucun joueur (égalité/tous morts en même temps)
         else if (alivePlayers.length === 0) {
-            console.log("💀 Partie terminée! Tous les joueurs sont morts - Match nul");
+            this.playerPositions = []
+            console.log("💀 Partie terminée! Tous les joueurs sont morts - Match nul",this.playerPositions);
             room.handleBombExplosion()
             playerConnections.clear()
             room.resetGame()

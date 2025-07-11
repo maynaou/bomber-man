@@ -85,7 +85,7 @@ export function App(gameState, players = [], seconds = {}) {
   }
 
   function handle_win(playerPositions) {
-    console.log("--------------------------",playerPositions);
+    // console.log("--------------------------",playerPositions);
     
       setIsMoving(false)
       cancelAnimationFrame(animationFrameId)
@@ -93,6 +93,22 @@ export function App(gameState, players = [], seconds = {}) {
     return h("div", { id: "congratulations" }, [
       h("h1", {}, "🎉 Congratulations! 🎉"),
       h("p", { id: "congratulations-message" }, `${playerPositions[0].username} Win The Game`),
+      h("button", {
+        type: "submit",
+        onclick: () => renderAppFn(() => App("login"), mount),
+      }, "Restart The Game")
+    ])
+  }
+
+  function handle_Tie() {
+    // console.log("--------------------------",playerPositions);
+    
+      setIsMoving(false)
+      cancelAnimationFrame(animationFrameId)
+      // animationFrameId = null
+    return h("div", { id: "congratulations" }, [
+      h("h1", {}, "​🤝😅​ Tie! 😅​🤝​"),
+      h("p", { id: "congratulations-message" }, `No victory this time. It's a tie!`),
       h("button", {
         type: "submit",
         onclick: () => renderAppFn(() => App("login"), mount),
@@ -392,6 +408,13 @@ export function App(gameState, players = [], seconds = {}) {
         mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs, playerPositions) : h("div", {}, "Chargement de la carte..."),
         chat(),
         handle_win(playerPositions),
+      ]);
+    }else if (playerPositions.length === 0){
+        return h("div", { class: "game-container" }, [
+        playerssidebar(playerPositions),
+        mapData ? createMapFromDataWithAbsolutePositioning(mapData, rows, cols, activeBombs, playerPositions) : h("div", {}, "Chargement de la carte..."),
+        chat(),
+        handle_Tie(),
       ]);
     }
     // const lives = seconds.map?.loves || 3;
