@@ -122,92 +122,68 @@ button:hover {
 }
 
 .player-absolute.front.player-1 {
-  background-image: url('wall-front.png');
-  /* filter: hue-rotate(200deg) saturate(1000%); */
-
+  background-image: url('wall-front-1.png');
 }
 
 .player-absolute.back.player-1 {
-  background-image: url('wall-back.png');
-  /* filter: hue-rotate(90deg) saturate(200%); */
-}
-
-.player-absolute.left.player-1 {
-  background-image: url('wall-left.png');
-  /* filter: hue-rotate(90deg) saturate(1000%) */
-
-}
-
-.player-absolute.right.player-1 {
-  background-image: url('wall-right.png');
-  /* filter:saturate(30) ; */
-}
-
-.player-absolute.front.player-2 {
-  background-image: url('wall-front-1.png');
-
-}
-
-.player-absolute.back.player-2 {
   background-image: url('wall-back-1.png');
 }
 
-.player-absolute.left.player-2 {
+.player-absolute.left.player-1 {
   background-image: url('wall-left-1.png');
+}
+
+.player-absolute.right.player-1 {
+  background-image: url('wall-right-1.png');
+}
+
+.player-absolute.front.player-2 {
+  background-image: url('wall-front-2.png');
+}
+
+.player-absolute.back.player-2 {
+  background-image: url('wall-back-2.png');
+}
+
+.player-absolute.left.player-2 {
+  background-image: url('wall-left-2.png');
 
 }
 
 .player-absolute.right.player-2 {
-  background-image: url('wall-right-1.png');
+  background-image: url('wall-right-2.png');
 }
 
 .player-absolute.front.player-3 {
-  background-image: url('wall-front.png');
-  filter: hue-rotate(200deg) saturate(1000%);
-
-
+  background-image: url('wall-front-3.png');
 }
 
 .player-absolute.back.player-3 {
-  background-image: url('wall-back.png');
-  filter: hue-rotate(200deg) saturate(1000%);
-
-
+  background-image: url('wall-back-3.png');
 }
 
 .player-absolute.left.player-3 {
-  background-image: url('wall-left.png');
-  filter: hue-rotate(200deg) saturate(1000%);
-
-
+  background-image: url('wall-left-3.png');
 }
 
 .player-absolute.right.player-3 {
-  background-image: url('wall-right.png');
-  filter: hue-rotate(200deg) saturate(1000%);
-
-
-
+  background-image: url('wall-right-3.png');
 }
 
 .player-absolute.front.player-4 {
-  background-image: url('wall-front.png');
-  filter: hue-rotate(90deg) saturate(1000%)
+  background-image: url('wall-front-4.png');
 }
 
 .player-absolute.back.player-4 {
-  background-image: url('wall-back.png');
-  filter: hue-rotate(90deg) saturate(1000%)
+  background-image: url('wall-back-4.png');
 }
 
 .player-absolute.left.player-4 {
-  background-image: url('wall-left.png');
-  filter: hue-rotate(90deg) saturate(1000%)
+  background-image: url('wall-left-4.png');
 }
 
 .player-absolute.right.player-4 {
-  background-image: url('wall-right.png');
-  filter: hue-rotate(90deg) saturate(1000%)
+  background-image: url('wall-right-4.png');
 }
 
 

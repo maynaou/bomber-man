@@ -197,9 +197,7 @@ export class Room {
     // requestAnimationFrame(() => this.gameLoop());
     // }
 
-    handleBombExplosion() {
-        console.log("----------------------------------------------");
-        
+    handleBombExplosion() {        
         this.broadcast({
             type: 'game_start',
             players: Array.from(this.players.values()).map(p => ({
