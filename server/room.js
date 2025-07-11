@@ -33,7 +33,7 @@ export class Room {
         this.playerCounter++;
         const playerNumber = this.playerCounter;
         const generateId = this.generatePlayerId()
-        this.player = new Player(generateId, ws, username, playerNumber)
+        this.player = new Player(generateId, ws, username,playerNumber)
         this.players.set(generateId, this.player)
         this.palyerJoin()
 
@@ -102,6 +102,7 @@ export class Room {
         this.countdownTimer = null;
         this.chathistory = [];
         this.player = null;
+        this.playerCounter = 0;
         this.gameStart = true;
     }
 
@@ -197,6 +198,8 @@ export class Room {
     // }
 
     handleBombExplosion() {
+        console.log("----------------------------------------------");
+        
         this.broadcast({
             type: 'game_start',
             players: Array.from(this.players.values()).map(p => ({

@@ -30,8 +30,8 @@ export class GenerateMapGame {
                 pixelY: cornerPositions[index].r * 40,
                 direction: 'front',
                 isAlive: true,
-                count: player.count,
                 isDamaged: false,
+                count:player.count,
                 canPassThrough: false,
                 lastBombCell: null,
                 stats: {
@@ -340,15 +340,18 @@ export class GenerateMapGame {
         room.handleBombExplosion()
 
         // Vérifier s'il reste assez de joueurs pour continuer le jeu
-        this.checkGameEnd();
+        if (this.playerPositions.length === 1 || this.playerPositions === 0) {
+              this.checkGameEnd();
+        }
     }
 
     checkGameEnd() {
         // Compter les joueurs encore vivants
         const alivePlayers = this.playerPositions.filter(player => player.isAlive);
 
-        // console.log(`Joueurs encore en vie: ${alivePlayers.length}`);
+       
         if (alivePlayers.length === 1) {
+            //  console.log(`Joueurs encore en vie: ${alivePlayers.length}`);
             room.handleBombExplosion()
             playerConnections.clear()
             room.resetGame()
@@ -356,7 +359,7 @@ export class GenerateMapGame {
 
         // Si il ne reste aucun joueur (égalité/tous morts en même temps)
         else if (alivePlayers.length === 0) {
-            // console.log("💀 Partie terminée! Tous les joueurs sont morts - Match nul");
+            console.log("💀 Partie terminée! Tous les joueurs sont morts - Match nul");
             room.handleBombExplosion()
             playerConnections.clear()
             room.resetGame()
@@ -376,7 +379,7 @@ export class GenerateMapGame {
         // Fonction pour générer un bonus aléatoire
         const generateRandomBonus = () => {
             const bonusTypes = ['speed', 'flame', 'powerUp'];
-            const bonusChance = 0.8; // 30% de chance d'obtenir un bonus
+            const bonusChance = 0.9; // 30% de chance d'obtenir un bonus
             if (Math.random() < bonusChance) {
                 return bonusTypes[Math.floor(Math.random() * bonusTypes.length)];
             }

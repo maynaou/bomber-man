@@ -30,6 +30,10 @@ let keysPressed = new Set();
 export let isMoving = false;
 export let animationFrameId;
 
+export function setIsMoving(value) {
+    isMoving = value;
+}
+
 // Fonction pour démarrer le mouvement
 export function handlemoveplayer(event, username, pixelX, pixelY) {
     let directionValue = event.key;
@@ -49,9 +53,16 @@ export function handlemoveplayer(event, username, pixelX, pixelY) {
         if (!isMoving) {
             currentDirection = directionValue;
             startMovement();
-        } else if (currentDirection !== directionValue) {
+        } else if (currentDirection !== directionValue ) {
             // Changer de direction
             currentDirection = directionValue;
+        }
+    } else if (directionValue === ' ') {
+        keysPressed.delete(directionValue);
+        
+        // Arrêter le mouvement si c'était la direction actuelle et plus de touches pressées
+        if (currentDirection === directionValue && keysPressed.size === 0) {
+            stopMovement();
         }
     }
 }
@@ -62,14 +73,14 @@ function startMovement() {
     gameLoop();
 }
 
-// function stopMovement() {
-//     isMoving = false;
-//     currentDirection = null;
-//     if (animationFrameId) {
-//         cancelAnimationFrame(animationFrameId);
-//         animationFrameId = null;
-//     }
-// }
+function stopMovement() {
+    isMoving = false;
+    currentDirection = null;
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+}
 
 // Boucle de jeu améliorée avec requestAnimationFrame
 export function gameLoop() {
@@ -111,6 +122,7 @@ function handleMessage(message) {
             break;
         case 'game_start':
             renderAppFn(() => App("game_start", message.players, message), mount);
+
             // ✅ CORRECTION: Restaurer le focus après le re-
             setTimeout(() => {
                 const player = document.getElementById(`player-controlled-${currentUsername}`);

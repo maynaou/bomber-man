@@ -2,12 +2,12 @@
 import { useState } from "../framework/state.js";
 import { h, elementRef } from "../framework/dom.js";
 import { renderAppFn } from "../framework/state.js";
-import { connectToWebSocket, handlemoveplayer, handlechat,animationFrameId} from "./websocket.js"
+import { connectToWebSocket, handlemoveplayer, handlechat,animationFrameId,setIsMoving} from "./websocket.js"
 
 let globalUsername = null; // ✅ AJOUT: Variable globale pour le nom d'utilisateur
 
 export function App(gameState, players = [], seconds = {}) {
-   console.log("seconds : ",seconds);
+  //  console.log("seconds : ",seconds);
    
 
 
@@ -85,8 +85,11 @@ export function App(gameState, players = [], seconds = {}) {
   }
 
   function handle_win(playerPositions) {
+    console.log("--------------------------",playerPositions);
     
+      setIsMoving(false)
       cancelAnimationFrame(animationFrameId)
+      // animationFrameId = null
     return h("div", { id: "congratulations" }, [
       h("h1", {}, "🎉 Congratulations! 🎉"),
       h("p", { id: "congratulations-message" }, `${playerPositions[0].username} Win The Game`),
@@ -164,7 +167,7 @@ export function App(gameState, players = [], seconds = {}) {
       bombElements.push(bombElement);
     });
     // Créer les éléments joueurs avec positionnement absolu
-    //let count = 1
+    // let count = 1
     playerPositions.forEach(player => {
       const isCurrentUser = player.username === globalUsername;
 
@@ -196,7 +199,7 @@ export function App(gameState, players = [], seconds = {}) {
       });
 
       playerElements.push(playerElement);
-      //count++
+      // count++
     });
 
     const mapContainer = h("div", {
@@ -381,6 +384,8 @@ export function App(gameState, players = [], seconds = {}) {
     const activeBombs = seconds.map?.activeBombs || [];
     const playerPositions = seconds.map?.playerPositions || [];
     if (playerPositions.length === 1) {
+      console.log("--------------------------------------");
+      
 
       return h("div", { class: "game-container" }, [
         playerssidebar(playerPositions),
