@@ -235,7 +235,7 @@ export class GenerateMapGame {
                     player.lastBombCell = { r: gridR, c: gridC },
                     player.canPassThrough = true
                 })
-                //console.log(" bomb placd legth ==> ", this.activeBombs.length, "statz : ", this.player.stats.maxBombs);
+             
                 setTimeout(() => {
                     room.handleBombExplosion()
                     this.explodeBomb(gridR, gridC, playerId);
@@ -477,7 +477,6 @@ export class GenerateMapGame {
         if (gridC === c && gridR === r) {
 
             if (['speed', 'flame', 'powerUp'].includes(bonusType)) {
-                // const player = this.playerPositions.find(p => p.id === this.player.id);
 
                 if (player) {
 
