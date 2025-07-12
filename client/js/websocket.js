@@ -4,7 +4,7 @@ import { App } from "./app.js"
 import { renderAppFn } from "../framework/state.js";
 import { elementRef, createElement, h } from "../framework/dom.js";
 
-// export let historychat = [];
+ export let historychat = [];
 
 let socket;
 let currentUsername = null;
@@ -112,12 +112,15 @@ function handleMessage(message) {
             break;
         case 'lobby':
             renderAppFn(() => App("lobby", message.players, message.seconds), mount);
+            setTimeout(() => requestChatHistory(), 100);
             break;
         case 'waiting_start':
             renderAppFn(() => App("waiting_start", message.players, message.seconds), mount);
+            setTimeout(() => requestChatHistory(), 100);
             break;
         case 'countdown_start':
             renderAppFn(() => App("countdown_start", message.players, message.seconds), mount);
+            setTimeout(() => requestChatHistory(), 100);
             break;
         case 'game_start':
             renderAppFn(() => App("game_start", message.players, message), mount);
@@ -138,19 +141,16 @@ function handleMessage(message) {
             elementRef.refchat.ref.scrollTop = elementRef.refchat.ref.scrollHeight;
             break;
         case 'chat_history':
-             console.log("--------------------------------------");
-              if (elementRef.refchat && elementRef.refchat.ref) {
+               if (elementRef.refchat && elementRef.refchat.ref) {
                elementRef.refchat.ref.innerHTML = '';
               }
             for (const chat of message.history) {
-                // historychat.push(chat)
                  if (elementRef.refchat && elementRef.refchat.ref) {
                 elementRef.refchat.ref.appendChild(
                     createElement(h("div", { class: "chat-message" }, chat.username, ": ", chat.message))
                 )
               }
             }
-            // elementRef.refchat.ref
             break
         case 'error':
             console.error("Server error:", message.message);
@@ -162,7 +162,6 @@ function handleMessage(message) {
 }
 
 export function handlechat(username, message) {
-    // console.log("Sending chat message:", message);
     socket.send(JSON.stringify({
         type: 'chat',
         username: username,
@@ -170,21 +169,10 @@ export function handlechat(username, message) {
     }));
 }
 
-// let frameCount = 0;
-// let lastFrameTime = performance.now();
-
-// function monitorFrameRate() {
-//     const now = performance.now();
-//     frameCount++;
-    
-//     if (now - lastFrameTime >= 1000) {
-//         console.log(`FPS: ${frameCount}`);
-//         frameCount = 0;
-//         lastFrameTime = now;
-//     }
-    
-//     requestAnimationFrame(monitorFrameRate);
-// }
-
-// // Démarrer le monitoring
-// monitorFrameRate();
+function requestChatHistory() {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+            type: 'request_chat_history'
+        }));
+    }
+}

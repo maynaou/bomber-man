@@ -76,7 +76,7 @@ export class Room {
 
         let timer = 20;
         console.log('chat : ',this.chathistory);
-        this.broadcastChatHistory()
+       // this.broadcastChatHistory()
         
         this.waitingTimer = setInterval(() => {
 
@@ -117,7 +117,7 @@ export class Room {
         if (this.gameState !== 'waiting') return
 
         this.gameState = 'countdown'
-        this.broadcastChatHistory()
+        //this.broadcastChatHistory()
         let timer = 10
         this.countdownTimer = setInterval(() => {
             this.broadcast({
@@ -260,10 +260,10 @@ export class Room {
         });
     }
 
-    broadcastChatHistory() {
-        this.broadcast({
-            type: 'chat_history',
-            history: this.chathistory
-        });
-    }
+    handleChatHistoryRequest(ws) {
+    this.sendToPlayer(ws, {
+        type: 'chat_history',
+        history: this.chathistory
+    });
+}
 }

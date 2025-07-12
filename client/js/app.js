@@ -8,8 +8,7 @@ let globalUsername = null; // ✅ AJOUT: Variable globale pour le nom d'utilisat
 
 export function App(gameState, players = [], seconds = {}) {
   //  console.log("seconds : ",seconds);
-   
-
+  
 
   const [username, setUsername] = useState("");
   function handleJoinGame(username) {
@@ -68,21 +67,24 @@ export function App(gameState, players = [], seconds = {}) {
     ]);
   }
 
-  function chat() {
-    return h("div", { class: "chat-container" },
-      [h("div", { class: "chat-messages", ref: elementRef.refchat },),
-      h("input", {
-        class: "chat-input",
-        placeholder: "Entrez votre message...",
-        onKeyPress: (e) => {
-          if (e.key === 'Enter') {
-            handlechat(username, e.target.value);
-            e.target.value = "";
-          }
-        }
-      }),
-      ]);
-  }
+ function chat() {
+    return h("div", { class: "chat-container" }, [
+        h("div", { 
+            class: "chat-messages", 
+            ref: elementRef.refchat 
+        }),
+        h("input", {
+            class: "chat-input",
+            placeholder: "Entrez votre message...",
+            onKeyPress: (e) => {
+                if (e.key === 'Enter' && e.target.value.trim()) {
+                    handlechat(globalUsername, e.target.value);
+                    e.target.value = "";
+                }
+            }
+        })
+    ]);
+}
 
   function handle_win(playerPositions) {
     // console.log("--------------------------",playerPositions);
@@ -317,7 +319,6 @@ export function App(gameState, players = [], seconds = {}) {
         h("p", { class: "status-message" }, "En attente du début de la partie...")
       ]),
         chat()
-
     ]);
   }
 
@@ -357,6 +358,7 @@ export function App(gameState, players = [], seconds = {}) {
       ]),
       chat()
     ]);
+    
   }
 
   if (gameState === 'countdown_start') {

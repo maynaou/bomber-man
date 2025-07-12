@@ -27,16 +27,19 @@ wss.on('connection', (ws) => {
 
                     }
 
-                    room.broadcastChatHistory() 
-
                     break;
                 case 'move':
 
                     //console.log(data);
                     room.handlePlayerMove(data); // direction = 'up', 'down' etc.
                     break
+                
                 case 'chat':
                     room.handleChat(data);
+                    break;
+
+                case 'request_chat_history':
+                    room.handleChatHistoryRequest(ws);
                     break;
             }
         } catch (error) {
