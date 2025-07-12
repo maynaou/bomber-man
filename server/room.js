@@ -30,6 +30,8 @@ export class Room {
 
             return null
         }
+        console.log("cht : ",this.chathistory);
+        
         this.playerCounter++;
         const playerNumber = this.playerCounter;
         const generateId = this.generatePlayerId()
@@ -73,7 +75,11 @@ export class Room {
         if (this.waitingTimer) return
 
         let timer = 20;
+        console.log('chat : ',this.chathistory);
+        this.broadcastChatHistory()
+        
         this.waitingTimer = setInterval(() => {
+
             if (this.players.size >= 2 && this.gameState === 'waiting') {
                 this.broadcast({
                     type: "waiting_start",
@@ -93,6 +99,7 @@ export class Room {
                 }
             }
         }, 1000);
+        
     }
 
     resetGame() {
@@ -110,6 +117,7 @@ export class Room {
         if (this.gameState !== 'waiting') return
 
         this.gameState = 'countdown'
+        this.broadcastChatHistory()
         let timer = 10
         this.countdownTimer = setInterval(() => {
             this.broadcast({
@@ -140,7 +148,7 @@ export class Room {
         this.gameMap = new GenerateMapGame(17, 21);
         const mapData = this.gameMap.mapData;
         // console.log(this.gameMap.playerPositions);
-
+        // this.broadcastChatHistory()
         this.broadcast({
             type: 'game_start',
             players: Array.from(this.players.values()).map(p => ({

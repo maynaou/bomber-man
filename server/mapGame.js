@@ -93,8 +93,11 @@ export class GenerateMapGame {
                         success: true,
                     };
                 }
+                
             }
         }
+
+        
 
         const moveSpeed = player.stats.speed
         let newPixelX = currentPixelX;
@@ -179,9 +182,11 @@ export class GenerateMapGame {
 
     updateBombGracePeriod(playerId) {
         const player = this.playerPositions.find(p => p.id === playerId);
-
+         if (player.lastBombCell == null) {
+            return
+         }
         const bomb = this.activeBombs.find(
-            b => b.r === player.lastBombCell.r && b.c === player.lastBombCell.c
+            b => (b.r === player.lastBombCell.r && b.c === player.lastBombCell.c) 
         );
 
         if (!bomb) return;
@@ -197,6 +202,7 @@ export class GenerateMapGame {
 
         if (!insideBombCell) {
             player.canPassThrough = false
+            player.lastBombCell = null
         }
     }
 
@@ -227,7 +233,7 @@ export class GenerateMapGame {
 
                 this.playerPositions.forEach((player) => {
                     player.lastBombCell = { r: gridR, c: gridC },
-                        player.canPassThrough = true
+                    player.canPassThrough = true
                 })
                 //console.log(" bomb placd legth ==> ", this.activeBombs.length, "statz : ", this.player.stats.maxBombs);
                 setTimeout(() => {

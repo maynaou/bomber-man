@@ -315,7 +315,9 @@ export function App(gameState, players = [], seconds = {}) {
       h("div", { class: "game-info" }, [
         h("p", {}, `${playerList.length} joueur(s) connecté(s)`),
         h("p", { class: "status-message" }, "En attente du début de la partie...")
-      ])
+      ]),
+        chat()
+
     ]);
   }
 

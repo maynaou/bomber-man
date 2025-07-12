@@ -27,6 +27,8 @@ wss.on('connection', (ws) => {
 
                     }
 
+                    room.broadcastChatHistory() 
+
                     break;
                 case 'move':
 

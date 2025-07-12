@@ -4,7 +4,7 @@ import { App } from "./app.js"
 import { renderAppFn } from "../framework/state.js";
 import { elementRef, createElement, h } from "../framework/dom.js";
 
-export let historychat = [];
+// export let historychat = [];
 
 let socket;
 let currentUsername = null;
@@ -104,7 +104,6 @@ export function gameLoop() {
 }
 
 function handleMessage(message) {
-    console.log("message :", message);
     
     const mount = document.getElementById("app");
     switch (message.type) {
@@ -132,20 +131,26 @@ function handleMessage(message) {
             }, 100);
             break;
         case 'chat':
-            historychat.push(message)
+            // historychat.push(message)
             elementRef.refchat.ref.appendChild(
                 createElement(h("div", { class: "chat-message" }, message.username, ": ", message.message))
             )
             elementRef.refchat.ref.scrollTop = elementRef.refchat.ref.scrollHeight;
             break;
         case 'chat_history':
+             console.log("--------------------------------------");
+              if (elementRef.refchat && elementRef.refchat.ref) {
+               elementRef.refchat.ref.innerHTML = '';
+              }
             for (const chat of message.history) {
-                historychat.push(chat)
+                // historychat.push(chat)
+                 if (elementRef.refchat && elementRef.refchat.ref) {
                 elementRef.refchat.ref.appendChild(
                     createElement(h("div", { class: "chat-message" }, chat.username, ": ", chat.message))
                 )
+              }
             }
-            elementRef.refchat.ref
+            // elementRef.refchat.ref
             break
         case 'error':
             console.error("Server error:", message.message);
@@ -157,7 +162,7 @@ function handleMessage(message) {
 }
 
 export function handlechat(username, message) {
-    console.log("Sending chat message:", message);
+    // console.log("Sending chat message:", message);
     socket.send(JSON.stringify({
         type: 'chat',
         username: username,
