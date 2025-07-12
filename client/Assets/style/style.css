@@ -72,7 +72,7 @@ button:hover {
   display: grid;
   gap: 0;
   border: 3px solid #666;
-  background-image: url('empty.webp');
+  background-image: url('../images/maps/empty.webp');
   background-size: 40px 40px;
   background-repeat: repeat;
   position: relative;
@@ -88,27 +88,27 @@ button:hover {
 }
 
 .cell.wall {
-  background-image: url('wall.webp');
+  background-image: url('../images/maps/wall.webp');
 }
 
 .cell.block {
-  background-image: url('block.webp');
+  background-image: url('../images/maps/block.webp');
 }
 
 .cell.speed {
-  background-image: url('speed-1.png');
+  background-image: url('../images/bonus/speed.png');
 }
 
 .cell.powerUp {
-  background-image: url('bombPower.png');
+  background-image: url('../images/bonus/bombPower.png');
 }
 
 .cell.flame {
-  background-image: url('flame-1.png');
+  background-image: url('../images/bonus/flame.png');
 }
 
 .cell.cutted {
-  background-image: url('cutted.gif');
+  background-image: url('../images/bomb_gif/cutted.gif');
 }
 
 /* Joueurs */
@@ -122,68 +122,68 @@ button:hover {
 }
 
 .player-absolute.front.player-1 {
-  background-image: url('wall-front-1.png');
+  background-image: url('../images/players/player-1/wall-front-1.png');
 }
 
 .player-absolute.back.player-1 {
-  background-image: url('wall-back-1.png');
+  background-image: url('../images/players/player-1/wall-back-1.png');
 }
 
 .player-absolute.left.player-1 {
-  background-image: url('wall-left-1.png');
+  background-image: url('../images/players/player-1/wall-left-1.png');
 }
 
 .player-absolute.right.player-1 {
-  background-image: url('wall-right-1.png');
+  background-image: url('../images/players/player-1/wall-right-1.png');
 }
 
 .player-absolute.front.player-2 {
-  background-image: url('wall-front-2.png');
+  background-image: url('../images/players/player-2/wall-front-2.png');
 }
 
 .player-absolute.back.player-2 {
-  background-image: url('wall-back-2.png');
+  background-image: url('../images/players/player-2/wall-back-2.png');
 }
 
 .player-absolute.left.player-2 {
-  background-image: url('wall-left-2.png');
+  background-image: url('../images/players/player-2/wall-left-2.png');
 
 }
 
 .player-absolute.right.player-2 {
-  background-image: url('wall-right-2.png');
+  background-image: url('../images/players/player-2/wall-right-2.png');
 }
 
 .player-absolute.front.player-3 {
-  background-image: url('wall-front-3.png');
+  background-image: url('../images/players/player-3/wall-front-3.png');
 }
 
 .player-absolute.back.player-3 {
-  background-image: url('wall-back-3.png');
+  background-image: url('../images/players/player-3/wall-back-3.png');
 }
 
 .player-absolute.left.player-3 {
-  background-image: url('wall-left-3.png');
+  background-image: url('../images/players/player-3/wall-left-3.png');
 }
 
 .player-absolute.right.player-3 {
-  background-image: url('wall-right-3.png');
+  background-image: url('../images/players/player-3/wall-right-3.png');
 }
 
 .player-absolute.front.player-4 {
-  background-image: url('wall-front-4.png');
+  background-image: url('../images/players/player-4/wall-front-4.png');
 }
 
 .player-absolute.back.player-4 {
-  background-image: url('wall-back-4.png');
+  background-image: url('../images/players/player-4/wall-back-4.png');
 }
 
 .player-absolute.left.player-4 {
-  background-image: url('wall-left-4.png');
+  background-image: url('../images/players/player-4/wall-left-4.png');
 }
 
 .player-absolute.right.player-4 {
-  background-image: url('wall-right-4.png');
+  background-image: url('../images/players/player-4/wall-right-4.png');
 }
 
 

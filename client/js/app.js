@@ -174,7 +174,7 @@ export function App(gameState, players = [], seconds = {}) {
                 height: 40px;
                 transform: translate(${bomb.pixelX}px, ${bomb.pixelY}px);
                 z-index: 8;
-                background-image: url('bomb.png');
+                background-image: url('./Assets/images/bomb_gif/bomb.png');
                 background-size: cover;
                 animation: bomb-blink 0.8s infinite;
             `,
