@@ -165,7 +165,6 @@ export function App(gameState, players = [], seconds = {}) {
     // console.log("username : ", username);
     activeBombs.forEach(bomb => {
       const bombElement = h("div", {
-        class: "bomb-absolute blink",
         id: `${bomb.playerId}`,
         style: `
                 position: absolute;
@@ -175,6 +174,7 @@ export function App(gameState, players = [], seconds = {}) {
                 z-index: 8;
                 background-image: url('bomb.png');
                 background-size: cover;
+                animation: bomb-blink 0.8s infinite;
             `,
         'data-pixel-x': bomb.pixelX,
         'data-pixel-y': bomb.pixelY,

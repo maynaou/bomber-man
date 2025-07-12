@@ -96,7 +96,7 @@ button:hover {
 }
 
 .cell.speed {
-  background-image: url('speed.png');
+  background-image: url('speed-1.png');
 }
 
 .cell.powerUp {
@@ -104,7 +104,7 @@ button:hover {
 }
 
 .cell.flame {
-  background-image: url('flamebonus.png');
+  background-image: url('flame-1.png');
 }
 
 .cell.cutted {

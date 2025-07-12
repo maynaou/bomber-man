@@ -386,7 +386,7 @@ export class GenerateMapGame {
         // Fonction pour générer un bonus aléatoire
         const generateRandomBonus = () => {
             const bonusTypes = ['speed', 'flame', 'powerUp'];
-            const bonusChance = 0.9; // 30% de chance d'obtenir un bonus
+            const bonusChance = 0.3; // 30% de chance d'obtenir un bonus
             if (Math.random() < bonusChance) {
                 return bonusTypes[Math.floor(Math.random() * bonusTypes.length)];
             }
