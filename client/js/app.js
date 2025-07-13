@@ -3,7 +3,7 @@ import { useState } from "../framework/state.js";
 import { h, elementRef } from "../framework/dom.js";
 import { renderAppFn } from "../framework/state.js";
 import { connectToWebSocket, handlemoveplayer, handlechat,animationFrameId,setIsMoving} from "./websocket.js"
-
+// test branch
 let globalUsername = null; // ✅ AJOUT: Variable globale pour le nom d'utilisateur
 
 export function App(gameState, players = [], seconds = {}) {
