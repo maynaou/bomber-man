@@ -167,6 +167,9 @@ export class GenerateMapGame {
                 }
 
                 const bombHere = this.activeBombs.find(b => b.r === r && b.c === c);
+
+                console.log(player.canPassThrough,player.username);
+                
                 if (bombHere) {
                     if (player.canPassThrough) {
                         continue; // Permettre le passage
@@ -182,11 +185,11 @@ export class GenerateMapGame {
 
     updateBombGracePeriod(playerId) {
         const player = this.playerPositions.find(p => p.id === playerId);
-         if (player.lastBombCell == null) {
+        if (player.lastBombCell == null) {
             return
-         }
+        }
         const bomb = this.activeBombs.find(
-            b => (b.r === player.lastBombCell.r && b.c === player.lastBombCell.c) 
+            b => (b.r === player.lastBombCell.r && b.c === player.lastBombCell.c && player.id === b.playerId) 
         );
 
         if (!bomb) return;
@@ -354,7 +357,6 @@ export class GenerateMapGame {
     checkGameEnd() {
         // Compter les joueurs encore vivants
         const alivePlayers = this.playerPositions.filter(player => player.isAlive);
-
        
         if (alivePlayers.length === 1) {
             //  console.log(`Joueurs encore en vie: ${alivePlayers.length}`);
@@ -371,11 +373,6 @@ export class GenerateMapGame {
             playerConnections.clear()
             room.resetGame()
         }
-
-        // // Si il reste plus d'un joueur, le jeu continue
-        // else {
-        //     console.log(`Jeu en cours... ${alivePlayers.length} joueurs restants`);
-        // }
     }
 
     explodeBomb(r, c, playerId) {

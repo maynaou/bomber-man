@@ -112,15 +112,15 @@ function handleMessage(message) {
             break;
         case 'lobby':
             renderAppFn(() => App("lobby", message.players, message.seconds), mount);
-            setTimeout(() => requestChatHistory(), 100);
+            requestChatHistory()
             break;
         case 'waiting_start':
             renderAppFn(() => App("waiting_start", message.players, message.seconds), mount);
-            setTimeout(() => requestChatHistory(), 100);
+            requestChatHistory()
             break;
         case 'countdown_start':
             renderAppFn(() => App("countdown_start", message.players, message.seconds), mount);
-            setTimeout(() => requestChatHistory(), 100);
+            requestChatHistory()
             break;
         case 'game_start':
             renderAppFn(() => App("game_start", message.players, message), mount);

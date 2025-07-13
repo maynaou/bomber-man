@@ -30,7 +30,7 @@ export class Room {
 
             return null
         }
-        console.log("cht : ",this.chathistory);
+        // console.log("cht : ",this.chathistory);
         
         this.playerCounter++;
         const playerNumber = this.playerCounter;
@@ -75,7 +75,7 @@ export class Room {
         if (this.waitingTimer) return
 
         let timer = 20;
-        console.log('chat : ',this.chathistory);
+        // console.log('chat : ',this.chathistory);
        // this.broadcastChatHistory()
         
         this.waitingTimer = setInterval(() => {
