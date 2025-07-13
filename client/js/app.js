@@ -43,23 +43,32 @@ export function App(gameState, players = [], seconds = {}) {
                 h("span", { class: "stat-value" }, `${player.stats.lives}`)
               ]),
 
-              h("div", { class: "stat-item" }, [
-                h("span", { class: "stat-icon" }, "🏃"),
-                h("span", { class: "stat-label" }, "Vitesse:"),
-                h("span", { class: "stat-value" }, `${player.stats.speed}`)
-              ]),
+          // 🏃 Speed (show max if 8)
+            h("div", { class: "stat-item" }, [
+              h("span", { class: "stat-icon" }, "🏃"),
+              h("span", { class: "stat-label" }, "Vitesse:"),
+              h("span", { class: "stat-value" },
+                `${player.stats.speed}${player.stats.speed === 8 ? ' (max)' : ''}`
+              )
+            ]),
 
-              h("div", { class: "stat-item" }, [
-                h("span", { class: "stat-icon" }, "💥"),
-                h("span", { class: "stat-label" }, "Flames:"),
-                h("span", { class: "stat-value" }, `${player.stats.flameRange}`)
-              ]),
+            // 💥 Flame Range (show max if 3)
+            h("div", { class: "stat-item" }, [
+              h("span", { class: "stat-icon" }, "💥"),
+              h("span", { class: "stat-label" }, "Flames:"),
+              h("span", { class: "stat-value" },
+                `${player.stats.flameRange}${player.stats.flameRange === 3 ? ' (max)' : ''}`
+              )
+            ]),
 
-              h("div", { class: "stat-item" }, [
-                h("span", { class: "stat-icon" }, "💣"),
-                h("span", { class: "stat-label" }, "Power-ups:"),
-                h("span", { class: "stat-value" }, `${player.stats.maxBombs}`)
-              ])
+            // 💣 Max Bombs (show max if 3)
+            h("div", { class: "stat-item" }, [
+              h("span", { class: "stat-icon" }, "💣"),
+              h("span", { class: "stat-label" }, "Power-ups:"),
+              h("span", { class: "stat-value" },
+                `${player.stats.maxBombs}${player.stats.maxBombs === 3 ? ' (max)' : ''}`
+              )
+            ])
             ])
           ]);
         })
