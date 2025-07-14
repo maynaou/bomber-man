@@ -89,10 +89,9 @@ wss.on('connection', (ws) => {
             });
 
         }
-        // console.log(playerConnections);
     });
 });
 
 server.listen(8070, () => {
-    console.log('Server running on http://localhost:8080')
+    console.log('Server running on http://localhost:8070')
 })
