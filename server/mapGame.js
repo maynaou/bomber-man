@@ -33,7 +33,6 @@ export class GenerateMapGame {
                 isDamaged: false,
                 count:player.count,
                 canPassThrough: false,
-                lastBombCell: null,
                 stats: {
                     lives: 3,
                     speed: 4,
@@ -185,11 +184,8 @@ export class GenerateMapGame {
 
     updateBombGracePeriod(playerId) {
         const player = this.playerPositions.find(p => p.id === playerId);
-        if (player.lastBombCell == null) {
-            return
-        }
         const bomb = this.activeBombs.find(
-            b => (b.r === player.lastBombCell.r && b.c === player.lastBombCell.c && player.id === b.playerId) 
+            b => (player.id === b.playerId) 
         );
 
         if (!bomb) return;
@@ -205,7 +201,6 @@ export class GenerateMapGame {
 
         if (!insideBombCell) {
             player.canPassThrough = false
-            player.lastBombCell = null
         }
     }
 
@@ -233,11 +228,7 @@ export class GenerateMapGame {
                     pixelX: gridC * this.cellSize,
                     pixelY: gridR * this.cellSize
                 });
-
-                this.playerPositions.forEach((player) => {
-                    player.lastBombCell = { r: gridR, c: gridC },
                     player.canPassThrough = true
-                })
              
                 setTimeout(() => {
                     room.handleBombExplosion()
