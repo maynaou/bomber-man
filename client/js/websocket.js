@@ -1,4 +1,3 @@
-// websocket.js - Modifications pour envoyer les coordonnées en pixels
 import { App } from "./app.js"
 import { renderAppFn } from "../framework/state.js";
 import { elementRef, createElement, h } from "../framework/dom.js";
