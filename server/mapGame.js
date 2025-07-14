@@ -32,7 +32,6 @@ export class GenerateMapGame {
                 isAlive: true,
                 isDamaged: false,
                 count:player.count,
-                canPassThrough: false,
                 stats: {
                     lives: 3,
                     speed: 4,
@@ -146,50 +145,49 @@ export class GenerateMapGame {
         };
     }
 
-    isValidMove(pixelX, pixelY, playerId) {
-        const player = this.playerPositions.find(p => p.id === playerId);
-        const topLeftGridR = Math.floor(pixelY / this.cellSize);
-        const topLeftGridC = Math.floor(pixelX / this.cellSize);
-        const bottomRightGridR = Math.floor((pixelY + 32 - 1) / this.cellSize);
-        const bottomRightGridC = Math.floor((pixelX + 32 - 1) / this.cellSize);
+ isValidMove(pixelX, pixelY, playerId) {
+    const player = this.playerPositions.find(p => p.id === playerId);
+    const topLeftGridR = Math.floor(pixelY / this.cellSize);
+    const topLeftGridC = Math.floor(pixelX / this.cellSize);
+    const bottomRightGridR = Math.floor((pixelY + 32 - 1) / this.cellSize);
+    const bottomRightGridC = Math.floor((pixelX + 32 - 1) / this.cellSize);
 
-        for (let r = topLeftGridR; r <= bottomRightGridR; r++) {
-            for (let c = topLeftGridC; c <= bottomRightGridC; c++) {
-                if (r < 0 || r >= this.rows || c < 0 || c >= this.cols) {
-                    return false;
-                }
+    for (let r = topLeftGridR; r <= bottomRightGridR; r++) {
+        for (let c = topLeftGridC; c <= bottomRightGridC; c++) {
+            if (r < 0 || r >= this.rows || c < 0 || c >= this.cols) {
+                return false;
+            }
 
-                const cellType = this.mapData[r][c];
+            const cellType = this.mapData[r][c];
 
-                if (cellType === 'wall' || cellType === 'block') {
-                    return false;
-                }
+            if (cellType === 'wall' || cellType === 'block') {
+                return false;
+            }
 
-                const bombHere = this.activeBombs.find(b => b.r === r && b.c === c);
-
-                console.log(player.canPassThrough,player.username);
-                
-                if (bombHere) {
-                    if (player.canPassThrough) {
-                        continue; // Permettre le passage
-                    } else {
-                        return false; // Bloquer
-                    }
+            const bombHere = this.activeBombs.find(b => b.r === r && b.c === c);                
+            if (bombHere) {
+                // Vérifier si le joueur peut passer à travers cette bombe spécifique
+                if (bombHere.canPassThrough) {
+                    continue; // Le joueur peut passer à travers cette bombe
+                } else {
+                    return false; // Bloquer le mouvement
                 }
             }
         }
-
-        return true;
     }
 
-    updateBombGracePeriod(playerId) {
-        const player = this.playerPositions.find(p => p.id === playerId);
-        const bomb = this.activeBombs.find(
-            b => (player.id === b.playerId) 
-        );
+    return true;
+}
 
-        if (!bomb) return;
-
+ updateBombGracePeriod(playerId) {
+    const player = this.playerPositions.find(p => p.id === playerId);
+    
+    // Vérifier toutes les bombes du joueur
+    const playerBombs = this.activeBombs.filter(bomb => bomb.playerId === playerId);
+    
+    playerBombs.forEach(bomb => {
+        // if (!bomb.canPassThrough) return; // Si déjà désactivé, passer
+        
         const bombPixelX = bomb.c * this.cellSize;
         const bombPixelY = bomb.r * this.cellSize;
 
@@ -198,12 +196,13 @@ export class GenerateMapGame {
             player.pixelX + this.cellSize > bombPixelX &&
             player.pixelY < bombPixelY + this.cellSize &&
             player.pixelY + this.cellSize > bombPixelY;
-
+        
+        // Si le joueur n'est plus dans la cellule de cette bombe
         if (!insideBombCell) {
-            player.canPassThrough = false
+            bomb.canPassThrough = false; // Désactiver le passage pour cette bombe spécifique
         }
-    }
-
+    });
+}
     placeBombs(playerId) {
         const player = this.playerPositions.find(p => p.id === playerId);
         const playerActiveBombs = this.activeBombs.filter(bomb => bomb.playerId === playerId);
@@ -217,21 +216,29 @@ export class GenerateMapGame {
             const gridR = Math.floor(playerCenterY / this.cellSize);
             const gridC = Math.floor(playerCenterX / this.cellSize);
             // Vérifier que la position est valide et qu'il n'y a pas déjà une bombe
+              
             if (gridR >= 0 && gridR < this.rows &&
                 gridC >= 0 && gridC < this.cols &&
                 !this.activeBombs.some(bomb => bomb.r === gridR && bomb.c === gridC)) {
                 // Placer la bombe à la position de grille calculée
-                this.activeBombs.push({
-                    r: gridR,
-                    c: gridC,
-                    playerId: player.id,
-                    pixelX: gridC * this.cellSize,
-                    pixelY: gridR * this.cellSize
-                });
-                    player.canPassThrough = true
+               const newBomb = {
+                r: gridR,
+                c: gridC,
+                playerId: player.id,
+                pixelX: gridC * this.cellSize,
+                pixelY: gridR * this.cellSize,
+                canPassThrough: true, // Le joueur peut passer à travers cette bombe initialement
+               };
+
+               
+            
+                this.activeBombs.push(newBomb);
              
+                
                 setTimeout(() => {
                     room.handleBombExplosion()
+                    // player.canPassThrough = true
+
                     this.explodeBomb(gridR, gridC, playerId);
                     this.handleExplosionDamage(gridR, gridC, playerId)
                     room.handleBombExplosion()
@@ -374,7 +381,7 @@ export class GenerateMapGame {
         // Fonction pour générer un bonus aléatoire
         const generateRandomBonus = () => {
             const bonusTypes = ['speed', 'flame', 'powerUp'];
-            const bonusChance = 0.3; // 30% de chance d'obtenir un bonus
+            const bonusChance = 0.8; // 30% de chance d'obtenir un bonus
             if (Math.random() < bonusChance) {
                 return bonusTypes[Math.floor(Math.random() * bonusTypes.length)];
             }
