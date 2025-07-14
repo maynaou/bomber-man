@@ -26,7 +26,6 @@ let currentDirection = null;
 let currentPixelX = null;
 let currentPixelY = null;
 let usernamee = null;
-let keysPressed = new Set();
 export let isMoving = false;
 export let animationFrameId;
 
@@ -46,24 +45,26 @@ export function handlemoveplayer(event, username, pixelX, pixelY) {
     currentPixelX = pixelX;
     currentPixelY = pixelY;
 
-    if (event.type === 'keydown') {
-        keysPressed.add(directionValue);
-        
+    if (event.code === 'Space') {
+         socket.send(JSON.stringify({
+            type: 'move',
+            direction: directionValue,
+            username: usernamee,
+            currentPixelX: currentPixelX,
+            currentPixelY: currentPixelY
+        }));
         // Démarrer le mouvement si pas déjà en cours
-        if (!isMoving) {
+            stopMovement();
+    } else {
+          if (!isMoving) {
             currentDirection = directionValue;
             startMovement();
         } else if (currentDirection !== directionValue ) {
             // Changer de direction
             currentDirection = directionValue;
         }
-    } else if (directionValue === ' ') {
-        keysPressed.delete(directionValue);
-        
         // Arrêter le mouvement si c'était la direction actuelle et plus de touches pressées
-        if (currentDirection === directionValue && keysPressed.size === 0) {
-            stopMovement();
-        }
+       
     }
 }
 
